@@ -8,11 +8,11 @@ import tensorflow as tf
 # # json utils
 # from __future__ import division, print_function, absolute_import
 import numpy as np
-import tflearn as tflearn
-from tflearn.layers.conv import conv_2d, max_pool_2d
-from tflearn.layers.core import input_data, dropout, fully_connected
-from tflearn.layers.estimator import regression
-from tflearn.layers.normalization import local_response_normalization
+# import tflearn as tflearn
+# from tflearn.layers.conv import conv_2d, max_pool_2d
+# from tflearn.layers.core import input_data, dropout, fully_connected
+# from tflearn.layers.estimator import regression
+# from tflearn.layers.normalization import local_response_normalization
 # from tfmsacore import data as td
 # from tfmsacore import netconf
 # from tfmsacore import utils
@@ -162,6 +162,7 @@ class NetworkClass:
         gValue = gVal()
         errMsg = "S"
         outFlag = "N"
+        network = None
         mat_x = conf.data.matrix[0]
         mat_y = conf.data.matrix[1]
 
@@ -177,37 +178,58 @@ class NetworkClass:
         for i in range(0, int(num_layers)):
             data = conf.layer[i]
             if (data.type == "input"):
-                network = input_data(shape=[None, mat_x, mat_y, 1], name='input')
-            elif (data.type == "cnn"):
-                if errMsg == "S":
-                    errMsg = CNNConfCheck().check_CNN_Filter_Size( mat_x, mat_y, data.cnnfilter )
+                # network = input_data(shape=[None, mat_x, mat_y, 1], name='input')
+                shape = [None, mat_x, mat_y, 1]
+                shape = list(shape)
+                shape = [None] + shape
 
-                if errMsg == "S":
-                    if gValue.log == "Y":
-                        print("get_CNN_train Clear.........."+str(data.type))
-                    network = conv_2d(network, data.node_in_out[1], data.cnnfilter, activation=str(data.active),regularizer=data.regualizer)
-                    network = max_pool_2d(network, data.maxpoolmatrix)
-                    network = local_response_normalization(network)
+                # Create a new tf.placeholder with the given shape.
+                name = 'input'
+                data_preprocessing = None
+                data_augmentation = None
+                with tf.name_scope(name):
+                    placeholder = tf.placeholder(shape=shape, dtype=tf.float32, name="X")
 
-                    mat_x = network.get_shape()[1].value
-                    mat_y = network.get_shape()[2].value
-            elif (data.type == "drop"):
-                if errMsg == "S":
-                    errMsg = CNNConfCheck().check_CNN_Droprate(data.droprate)
+                # Store the placeholder object in TensorFlow collections so it can be
+                # retrieved and used elsewhere.
+                tf.add_to_collection(tf.GraphKeys.INPUTS, placeholder)
+                tf.add_to_collection(tf.GraphKeys.LAYER_TENSOR + '/' + name, placeholder)
 
-                if errMsg == "S":
-                    if gValue.log == "Y":
-                        print("get_CNN_train Clear.........." + str(data.type))
-                    network = fully_connected(network, data.node_in_out[1], activation=str(data.active))
-                    network = dropout(network, float(data.droprate))
+                # Store the objects for data-preprocessing and -augmentation
+                # in TensorFlow collections so they can be retrieved and used elsewhere.
+                tf.add_to_collection(tf.GraphKeys.DATA_PREP, data_preprocessing)
+                tf.add_to_collection(tf.GraphKeys.DATA_AUG, data_augmentation)
 
-            elif (data.type == "out"):
-                if gValue.log == "Y":
-                    print("get_CNN_train Clear.........." + str(data.type))
-                network = fully_connected(network, conf.data.y_shape[1], activation=str(data.active))
-                network = regression(network, optimizer='adam', learning_rate=learnrate,
-                                     loss='categorical_crossentropy', name='target')
-                outFlag = "Y"
+            # elif (data.type == "cnn"):
+            #     if errMsg == "S":
+            #         errMsg = CNNConfCheck().check_CNN_Filter_Size( mat_x, mat_y, data.cnnfilter )
+            #
+            #     if errMsg == "S":
+            #         if gValue.log == "Y":
+            #             print("get_CNN_train Clear.........."+str(data.type))
+            #         network = conv_2d(network, data.node_in_out[1], data.cnnfilter, activation=str(data.active),regularizer=data.regualizer)
+            #         network = max_pool_2d(network, data.maxpoolmatrix)
+            #         network = local_response_normalization(network)
+            #
+            #         mat_x = network.get_shape()[1].value
+            #         mat_y = network.get_shape()[2].value
+            # elif (data.type == "drop"):
+            #     if errMsg == "S":
+            #         errMsg = CNNConfCheck().check_CNN_Droprate(data.droprate)
+            #
+            #     if errMsg == "S":
+            #         if gValue.log == "Y":
+            #             print("get_CNN_train Clear.........." + str(data.type))
+            #         network = fully_connected(network, data.node_in_out[1], activation=str(data.active))
+            #         network = dropout(network, float(data.droprate))
+            #
+            # elif (data.type == "out"):
+            #     if gValue.log == "Y":
+            #         print("get_CNN_train Clear.........." + str(data.type))
+            #     network = fully_connected(network, conf.data.y_shape[1], activation=str(data.active))
+            #     network = regression(network, optimizer='adam', learning_rate=learnrate,
+            #                          loss='categorical_crossentropy', name='target')
+            #     outFlag = "Y"
 
 
         if outFlag == "N":
@@ -220,27 +242,28 @@ class NetworkClass:
         errMsg = "S"
         outFlag = "N"
         matrix = conf.data.matrix
+        network = None
 
         learnrate = conf.data.learnrate
         num_layers = len(conf.layer)
 
-        for i in range(0, int(num_layers)):
-            data = conf.layer[i]
-            if (data.type == "input"):
-                network = input_data(shape=[None, matrix[0], matrix[1]], name='input')
-            elif (data.type == "rnn"):
-                if gValue.log == "Y":
-                    print("get_RNN_train Clear.........."+str(data.type))
-
-                network = tflearn.lstm(network, 512, return_seq=True)
-                network = tflearn.lstm(network, 512)
-            elif (data.type == "out"):
-                if gValue.log == "Y":
-                    print("get_RNN_train Clear.........." + str(data.type))
-                network = fully_connected(network, conf.data.y_shape[1], activation=str(data.active))
-                network = regression(network, optimizer='adam', learning_rate=learnrate,
-                                     loss='categorical_crossentropy', name='target')
-                outFlag = "Y"
+        # for i in range(0, int(num_layers)):
+        #     data = conf.layer[i]
+        #     if (data.type == "input"):
+        #         network = input_data(shape=[None, matrix[0], matrix[1]], name='input')
+        #     elif (data.type == "rnn"):
+        #         if gValue.log == "Y":
+        #             print("get_RNN_train Clear.........."+str(data.type))
+        #
+        #         network = tflearn.lstm(network, 512, return_seq=True)
+        #         network = tflearn.lstm(network, 512)
+        #     elif (data.type == "out"):
+        #         if gValue.log == "Y":
+        #             print("get_RNN_train Clear.........." + str(data.type))
+        #         network = fully_connected(network, conf.data.y_shape[1], activation=str(data.active))
+        #         network = regression(network, optimizer='adam', learning_rate=learnrate,
+        #                              loss='categorical_crossentropy', name='target')
+        #         outFlag = "Y"
 
 
         if outFlag == "N":
