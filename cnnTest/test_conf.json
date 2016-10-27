@@ -1,0 +1,73 @@
+{
+     "data":
+         {
+             "matrix": [4, 5],
+             "learnrate": 0.01,
+             "epoch": 2,
+             "x_shape":[0,0],
+             "y_shape":[0,0]
+         },
+     "layer":
+         [
+             {
+                 "type": "input",
+                 "active": "",
+                 "cnnfilter": "",
+                 "cnnstride": "",
+                 "maxpoolmatrix": "",
+                 "maxpoolstride": "",
+                 "node_in_out": "",
+                 "regualizer": "",
+                 "padding": "",
+                 "droprate": ""
+             },
+             {
+                 "type": "cnn",
+                 "active": "relu",
+                 "cnnfilter": [2, 2],
+                 "cnnstride": [1, 1],
+                 "maxpoolmatrix": [2, 2],
+                 "maxpoolstride": [1, 1],
+                 "node_in_out": [1, 32],
+                 "regualizer": "",
+                 "padding": "SAME",
+                 "droprate": ""
+             },
+             {
+                 "type": "rnn",
+                 "active": "relu",
+                 "cnnfilter": [2, 2],
+                 "cnnstride": [1, 1],
+                 "maxpoolmatrix": [2, 2],
+                 "maxpoolstride": [1, 1],
+                 "node_in_out": [1, 32],
+                 "regualizer": "",
+                 "padding": "SAME",
+                 "droprate": ""
+             },
+             {
+                 "type": "drop",
+                 "active": "tanh",
+                 "cnnfilter": [2, 2],
+                 "cnnstride": [1, 1],
+                 "maxpoolmatrix": [2, 2],
+                 "maxpoolstride": [1, 1],
+                 "node_in_out": [32, 64],
+                 "regualizer": "",
+                 "padding": "SAME",
+                 "droprate": "0.1"
+             },
+             {
+                 "type": "out",
+                 "active": "softmax",
+                 "cnnfilter": "",
+                 "cnnstride": "",
+                 "maxpoolmatrix": "",
+                 "maxpoolstride": "",
+                 "node_in_out": "",
+                 "regualizer": "",
+                 "padding": "SAME",
+                 "droprate": ""
+             }
+         ]
+ }
