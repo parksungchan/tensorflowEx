@@ -2,7 +2,17 @@
 http://www.oracle.com/technetwork/java/javase/archive-139210.html
 
 2. JAVA_HOME 설치
-환경변수 등록
-시스템 속성" --- 고급 --- [환경 변수(N)...]"환경 변수" --- [새로 만들기(W)...]"새 시스템 변수" --- 변수 이름(N): 
-JAVA_HOME --- 변수 값(V): C:\Program Files\Java\jdk1.7.0_09[1]  --- [확인] "환경 변수" --- 시스템 변수(S) --- Path 선택 --- [편집(I)...]"시스템 변수 편집" --- 변수 값(V): 맨 앞에 %JAVA_HOME%\bin; 추가 --- [확인] javac 테스트 2[편집]아까 그 창에서 하면 안된다. 새로 cmd 창을 열자.[2] Win --- cmd ↵ EnterC:\Users\zetawiki>javac -version
-javac 1.7.0_09
+2-1. 환경변수 등록제어판->시스템->고급시스템설정->환경변수 
+
+2-2. 시스템 변수 새로 만들기
+     JAVA_HOME --- 변수 값(V): C:\Program Files (x86)\Java\jdk1.6.0_45
+2-3. 시스템 변수 수정.
+     Path 변수 값(V): 맨 앞에 %JAVA_HOME%\bin; 추가
+     
+2-4. 새로 cmd 창을 열자. 
+     javac -version     
+
+
+
+
+     
