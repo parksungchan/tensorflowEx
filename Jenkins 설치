@@ -39,4 +39,9 @@ mailer
 script-security
 matrix-project
 scm-api
-git.hpi
+git
+
+github-api
+plain-credentials
+token-macro
+github
