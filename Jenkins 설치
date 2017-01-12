@@ -12,7 +12,10 @@ http://www.oracle.com/technetwork/java/javase/archive-139210.html
 2-4. 새로 cmd 창을 열자. 
      javac -version     
 
-
-
-
+3. Tomcat 설치
+3-1. http://tomcat.apache.org/ 
+     DownLoad 클릭후 원하는 버전 선택 Core 확인후 다운로드 실행.
+     
+     
+     
      
