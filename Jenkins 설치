@@ -25,5 +25,18 @@ http://www.oracle.com/technetwork/java/javase/archive-139210.html
 Unlock Jenkins 메세지를 보이면 아래 빨간 텍스트 부분을 카피하여 탐색기 경로에 넣어준다. 
 키값을 보여주는 것을 텍스트 박스에 넣어준다.
 
-
-
+5. Jenkins관리를 클릭해준다. Plugin 설치
+Jenkins관리->플러그인 관리-> 고급 -> 플러그인 올리기
+structs
+workflow-step-api
+workflow-scm-step
+credentials
+ssh-credentials
+git-client
+junit
+display-url-api
+mailer
+script-security
+matrix-project
+scm-api
+git.hpi
