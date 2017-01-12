@@ -46,10 +46,15 @@ plain-credentials
 token-macro
 github
 
+
+6. Git 
+
+
+7. Jenkins Project 생성 좌측 구성 메뉴 
+
 ○ 서버#1 : 하둡용( 172.31.46.136)   
 - OS 설치 전, HDD 인식안됨
 ○ 서버#2 : 하둡용 (172.31.46.137)   
 - OS 설치완료,원격연결 확인
 ○ 서버#3 : Deep러닝 AP (172.31.46.138)   
 - OS 설치완료,원격연결 확인
-
