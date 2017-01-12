@@ -21,3 +21,9 @@ http://www.oracle.com/technetwork/java/javase/archive-139210.html
 4-2. 설치 폴더로 가서 jenkins.xml 파일을 열어 <arguments> 부분에서 젠킨스 실행 port 를 바꿔 줍니다. 
      (기본 port가 8080이라서 Tomcat이랑 겹칩니다)
 4-3. 제어판->관리도구->서비스->Jenkins를 내렸다 올린다.
+4-4. Administrator password 입
+Unlock Jenkins 메세지를 보이면 아래 빨간 텍스트 부분을 카피하여 탐색기 경로에 넣어준다. 
+키값을 보여주는 것을 텍스트 박스에 넣어준다.
+
+
+
