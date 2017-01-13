@@ -1,5 +1,5 @@
 1. Java JDK 설치
-http://www.oracle.com/technetwork/java/javase/archive-139210.html
+   http://www.oracle.com/technetwork/java/javase/archive-139210.html
 
 2. JAVA_HOME 설치
 2-1. 환경변수 등록제어판->시스템->고급시스템설정->환경변수 
@@ -19,61 +19,68 @@ http://www.oracle.com/technetwork/java/javase/archive-139210.html
 4. Jenkins 
 4-1. https://jenkins.io/index.html     
 4-2. 설치 폴더로 가서 jenkins.xml 파일을 열어 <arguments> 부분에서 젠킨스 실행 port 를 바꿔 줍니다. 
-     (기본 port가 8080이라서 Tomcat이랑 겹칩니다)
+     (기본 port가 8080이라서 Tomcat이랑 겹칩니다 톰캣을 쓸게 아니라면 사실 안해도 된다.)
 4-3. 제어판->관리도구->서비스->Jenkins를 내렸다 올린다.
 4-4. Administrator password 입
-Unlock Jenkins 메세지를 보이면 아래 빨간 텍스트 부분을 카피하여 탐색기 경로에 넣어준다. 
-키값을 보여주는 것을 텍스트 박스에 넣어준다.
+     Unlock Jenkins 메세지를 보이면 아래 빨간 텍스트 부분을 카피하여 탐색기 경로에 넣어준다. 
+     키값을 보여주는 것을 텍스트 박스에 넣어준다.
 
 5. Jenkins관리를 클릭해준다. Plugin 설치
-Jenkins관리->플러그인 관리-> 고급 -> 플러그인 올리기
-structs
-workflow-step-api
-workflow-scm-step
-credentials
-ssh-credentials
-git-client
-junit
-display-url-api
-mailer
-script-security
-matrix-project
-scm-api
-git
+   Jenkins관리->플러그인 관리-> 고급 -> 플러그인 올리기
+   structs
+   workflow-step-api
+   workflow-scm-step
+   credentials
+   ssh-credentials
+   git-client
+   junit
+   display-url-api
+   mailer
+   script-security
+   matrix-project
+   scm-api
+   git
 
-github-api
-plain-credentials
-token-macro
-github
+   github-api
+   plain-credentials
+   token-macro
+   github
 
-publish-over-ssh
+   publish-over-ssh
 
-6. Git 설
-https://git-for-windows.github.io/
-Jenkins 재시작 
+6. Git 설치를 한다.    
+   https://git-for-windows.github.io/
+   Jenkins 재시작 
 
-7. Jenkins Project 생성 좌측 구성 메뉴 
-Github Project Click
-Project URL : https://github.com/TensorMSA/TensorMSA
+7. Jenkins 관리 -> 시스템 설정
+   Publish over SSH 추
+   SSH Server Name : AI
+              Hostname : 172.31.46.138
+              Username : root
+              Remote Directory : /home/user
+              고급 클릭 
+              Use password authentication, or use a different key Check
+              Passphrase / Password : pass
+              Test Configuration Success Save
 
-소스코드관리 
-Git Check
-Repository URL : https://github.com/TensorMSA/TensorMSA.git
-Jenkins Credentials : 
-UserName, Pass 입력
+8. Jenkins Project 생성 좌측 구성 메뉴 
+   Github Project Click
+   Project URL : https://github.com/TensorMSA/TensorMSA
 
-8. Jenkins 관리 -> 시스템 설정
-Publish over SSH 추
-SSH Server Name : AI
-           Hostname : 172.31.46.138
-           Username : root
-           Remote Directory : /home/user
-           고급 클릭 
-           Use password authentication, or use a different key Check
-           Passphrase / Password : pass
-           Test Configuration Success Save
-           
-           
+   소스코드관리 
+   Git Check
+   Repository URL : https://github.com/TensorMSA/TensorMSA.git
+   Jenkins Credentials : UserName, Pass 입력
+
+   빌드후 조치 추가.
+   Send Build Artifacts over SSH
+   Transfer Set
+      Transfers Source files : **/*.*          
+      Remove prefix : 입력하지 않음.          
+      Remote directory : t1
+   
+   
+   
 ○ 서버#1 : 하둡용( 172.31.46.136)   
 - OS 설치 전, HDD 인식안됨
 ○ 서버#2 : 하둡용 (172.31.46.137)   
