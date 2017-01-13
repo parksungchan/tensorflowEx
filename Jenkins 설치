@@ -47,10 +47,20 @@ token-macro
 github
 
 
-6. Git 
-
+6. Git 설
+https://git-for-windows.github.io/
+Jenkins 재시작 
 
 7. Jenkins Project 생성 좌측 구성 메뉴 
+Github Project Click
+Project URL : https://github.com/TensorMSA/TensorMSA
+
+소스코드관리 
+Git Check
+Repository URL : https://github.com/TensorMSA/TensorMSA.git
+Jenkins Credentials : 
+UserName, Pass 입력
+
 
 ○ 서버#1 : 하둡용( 172.31.46.136)   
 - OS 설치 전, HDD 인식안됨
