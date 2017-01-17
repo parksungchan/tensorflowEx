@@ -16,5 +16,7 @@ Mac이나 Linux 컴퓨터에서 SSH 클라이언트를 사용하여 Linux 인스
 create-key-pair(AWS CLI)New-EC2KeyPair(Windows PowerShell용 AWS 도구)
 
 
+용량 확인     
+du -sh ./* | sort -n
 
 
