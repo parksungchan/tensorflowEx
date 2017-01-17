@@ -24,7 +24,7 @@ docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-un
 Docker Image SAVE
 $ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
 
-$ sudo docker load < /home/ct_01.tar  // 이미지 복원 
+$ sudo docker load < /var/ct_01.tar  // 이미지 복원 
 $ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 확인
  
 
