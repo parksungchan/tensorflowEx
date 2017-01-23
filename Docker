@@ -22,8 +22,8 @@ docker pull tmddno1/tensormsa:v5
 docker pull hoyai/hoyai_ing
 
 원래 서버에는 XRDP 가 설치 되어있다고 가정하고 Container 생성시 아래와 같이 해주면 그래픽 사용가능
-
 docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -p 8080:8080 -p 8998:8998 -p 8989:8989 -p 7077:7077 tmddno1/tensormsa:v1
+docker run -i -t hoyai/hoyai_ing /bin/bash
 ----------------------------------------------------------
 Docker Image SAVE
 $ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
