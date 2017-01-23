@@ -21,6 +21,29 @@ du -sh ./* | sort -n
 
 FTP 파일질라 Client 다운로드. 
 https://filezilla-project.org/
+AWS
+52.78.19.96
+SFTP선택
+키파일선택
+ec2-user
+D:\kimaws.ppk
+
+AWS_tjdcks80
+52.78.208.49
+SFTP선택
+키파일선택
+ec2-user
+D:\kimaws.ppk
+
+POSCO
+172.31.46.138
+일반
+root
+pass
+
+
+
+
 
 
 
