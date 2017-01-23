@@ -14,6 +14,9 @@
 docker 전체 Image 삭제
 docker rm $(docker ps -a -q)
 
+위 이미지 삭제가 안먹을시 개별로 삭제 해야 한다.
+docker rmi -f ImageId
+
 docker Image 가져오기.
 docker pull tmddno1/tensormsa:v5
 
