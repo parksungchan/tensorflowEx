@@ -79,8 +79,11 @@
       Remove prefix : 입력하지 않음.          
       Remote directory : t1
    
-   
-   
+9. Jenkins Scheduled 설정.
+Project -> 구성 -> 빌드유발 -> POLL SCM -> */20 * * * *
+
+
+
 ○ 서버#1 : 하둡용( 172.31.46.136)   
 - OS 설치 전, HDD 인식안됨
 ○ 서버#2 : 하둡용 (172.31.46.137)   
