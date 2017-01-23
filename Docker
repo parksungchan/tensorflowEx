@@ -19,6 +19,7 @@ docker rmi -f ImageId
 
 docker Image 가져오기.
 docker pull tmddno1/tensormsa:v5
+docker pull hoyai/hoyai_ing
 
 원래 서버에는 XRDP 가 설치 되어있다고 가정하고 Container 생성시 아래와 같이 해주면 그래픽 사용가능
 
