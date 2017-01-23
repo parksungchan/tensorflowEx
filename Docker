@@ -1,1 +1,37 @@
-1. Docker Hub에 가입을해준다.   https://hub.docker.com2. Repositories 를 만들어준다.3. Docker를 가져오는 명령어 이다.   docker pull soul8085/parksungchan:latest  4. Docker Push   CMD : docker login        id : soul8085        pass : pass 입력.      CMD : docker info         정보를 확인해 줄수 있다.----------------------------------------------------------docker 전체 Image 삭제docker rm $(docker ps -a -q)위 이미지 삭제가 안먹을시 개별로 삭제 해야 한다.docker rmi -f ImageIddocker Image 가져오기.docker pull tmddno1/tensormsa:v5docker pull hoyai/hoyai_ing원래 서버에는 XRDP 가 설치 되어있다고 가정하고 Container 생성시 아래와 같이 해주면 그래픽 사용가능docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -p 8080:8080 -p 8998:8998 -p 8989:8989 -p 7077:7077 tmddno1/tensormsa:v1docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -p 8080:8080 -p 8998:8998 -p 8989:8989 -p 7077:7077 hoyai/hoyai_ing:latest----------------------------------------------------------Docker Image SAVE$ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar$ sudo docker load < /var/ct_01.tar  // 이미지 복원 $ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 확인 현재 디렉토리에 도커 파일 가져오기   $ sudo docker cp hello-nginx:/etc/nginx/nginx.conf ./
+1. Docker Hub에 가입을해준다.
+   https://hub.docker.com
+2. Repositories 를 만들어준다.
+3. Docker를 가져오는 명령어 이다.
+   docker pull soul8085/parksungchan:latest  
+4. Docker Push
+   CMD : docker login
+        id : soul8085
+        pass : pass 입력.
+   
+   CMD : docker info
+         정보를 확인해 줄수 있다.
+----------------------------------------------------------
+docker 전체 Image 삭제
+docker rm $(docker ps -a -q)
+
+위 이미지 삭제가 안먹을시 개별로 삭제 해야 한다.
+docker rmi -f ImageId
+
+docker Image 가져오기.
+docker pull tmddno1/tensormsa:v5
+docker pull hoyai/hoyai_ing
+
+원래 서버에는 XRDP 가 설치 되어있다고 가정하고 Container 생성시 아래와 같이 해주면 그래픽 사용가능
+
+docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -p 8080:8080 -p 8998:8998 -p 8989:8989 -p 7077:7077 tmddno1/tensormsa:v1
+----------------------------------------------------------
+Docker Image SAVE
+$ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
+
+$ sudo docker load < /var/ct_01.tar  // 이미지 복원 
+$ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 확인
+ 
+현재 디렉토리에 도커 파일 가져오기   
+$ sudo docker cp hello-nginx:/etc/nginx/nginx.conf ./
+
+
