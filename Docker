@@ -30,4 +30,7 @@ $ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
 $ sudo docker load < /var/ct_01.tar  // 이미지 복원 
 $ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 확인
  
+현재 디렉토리에 도커 파일 가져오기   
+$ sudo docker cp hello-nginx:/etc/nginx/nginx.conf ./
+
 
