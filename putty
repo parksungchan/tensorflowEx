@@ -19,4 +19,14 @@ create-key-pair(AWS CLI)New-EC2KeyPair(Windows PowerShell용 AWS 도구)
 용량 확인     
 du -sh ./* | sort -n
 
+FTP 파일질라 Client 다운로드. 
+https://filezilla-project.org/
 
+
+
+
+
+
+
+
+.
