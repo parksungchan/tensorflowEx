@@ -1,20 +1,14 @@
 putty, puttygen down
 http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
-https://console.aws.amazon.com/ec2/에서 Amazon EC2 콘솔을 엽니다.
-탐색 창의 [NETWORK & SECURITY]에서 [Key Pairs]를 선택합니다.
-Tip탐색 창은 Amazon EC2 콘솔의 왼쪽에 있습니다. 
-창이 보이지 않는 경우 창이 최소화되었을 수 있으니 화살표를 선택해 확대하십시오.
-[Create Key Pair]를 선택합니다.[Create Key Pair] 대화 상자의 [Key pair name] 필드에 새 키 페어의 이름을 입력하고
-[Create]를 선택합니다.브라우저에서 프라이빗 키 파일이 자동으로 다운로드됩니다. 
-기본 파일 이름은 키 페어의 이름으로 지정된 이름이며, 파일 이름 확장명은 .pem입니다. 
-안전한 장소에 프라이빗 키 파일을 저장합니다.Important이때가 사용자가 프라이빗 키 파일을 저장할 수 있는 유일한 기회입니다. 
-사용자는 인스턴스를 시작할 때 키 페어의 이름을 입력하고, 인스턴스에 연결할 때마다 해당하는 프라이빗 키를 입력해야 합니다.
-Mac이나 Linux 컴퓨터에서 SSH 클라이언트를 사용하여 Linux 인스턴스에 연결하려면 다음 명령을 사용하여 프라이빗 키 파일의 
-권한을 설정함으로써 사용자에게만 읽기 권한이 생기도록 합니다.$ chmod 400 my-key-pair.pem명령줄을 이용한 키 페어 만들기다음 
-명령 중 하나를 사용할 수 있습니다. 다음의 명령줄 인터페이스에 대한 자세한 정보는 Amazon EC2에 액세스섹션을 참조하십시오.
-create-key-pair(AWS CLI)New-EC2KeyPair(Windows PowerShell용 AWS 도구)
+용량 큰 파일 찾기/usr 디렉토리에 20 메가 넘는 파일들을 찾아 준다.
+$> find /usr -size +20000 -print 
 
+가장 크기가 큰 디렉토리?
+du -S | sort -n
+
+가장 크기가 큰 파일을 찾기
+ls -lR | sort +4n
 
 용량 확인     
 du -sh ./* | sort -n
