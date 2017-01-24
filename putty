@@ -13,6 +13,11 @@ ls -lR | sort +4n
 용량 확인     
 du -sh ./* | sort -n
 
+삭제한 파일이 열려있는 것을 확인.
+lsof /var
+
+kill -9 PID값
+
 FTP 파일질라 Client 다운로드. 
 https://filezilla-project.org/
 AWS
