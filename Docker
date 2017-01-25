@@ -77,6 +77,7 @@ tar -xzvf dev.tar.gz
 pwd : Host /home 에서 실행 
 tar -czvf dev.tar.gz /home/dev
 docker exec -i 1d4bbd734fba sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz
+docker exec -i 1d4bbd734fba rm -rf /home/dev/*
 docker exec -i 1d4bbd734fba tar -xzvf dev.tar.gz 
 
 
