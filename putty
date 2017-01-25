@@ -46,8 +46,7 @@ $ cat /etc/redhat-release
 
 
 
-
-
-
+.리눅스리붓
+reboot -f
 
 .
