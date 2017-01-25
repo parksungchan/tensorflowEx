@@ -57,3 +57,21 @@ yum --disablerepo=\* remove dockerdocker
 
 재설치
 rpm -ivh docker-1.12.6-15.git037a2f5.fc26.aarch64.rpm
+
+이건 컨테이너 -> Host 가져오기
+docker cp 49ad58f73267:/home/dev /home
+
+이건 Host -> 컨테이너에 밀어넣기
+docker exec -i 49ad58f73267 sh -c 'cat > /home/dev/dev.tar' < ./dev.tar
+
+
+
+
+
+
+
+
+
+
+
+.
