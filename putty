@@ -40,9 +40,8 @@ POSCO
 root
 pass
 
-
-
-
+# OS 버전 확인
+$ cat /etc/redhat-release 
 
 
 
