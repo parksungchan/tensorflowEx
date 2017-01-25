@@ -47,4 +47,13 @@ $ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 �
 현재 디렉토리에 도커 파일 가져오기   
 $ sudo docker cp hello-nginx:/etc/nginx/nginx.conf ./
 
+인터넷을 통행 docker 삭제
+rpm -e docker
 
+yum -y remove docker
+
+인터넷 통하지 않고 docker 삭제 하기
+yum --disablerepo=\* remove dockerdocker 
+
+재설치
+rpm -ivh docker-1.12.6-15.git037a2f5.fc26.aarch64.rpm
