@@ -61,13 +61,16 @@ rpm -ivh docker-1.12.6-15.git037a2f5.fc26.aarch64.rpm
 이건 컨테이너 -> Host 가져오기
 docker cp 49ad58f73267:/home/dev /home
 
-이건 Host -> 컨테이너에 밀어넣기
-docker exec -i 49ad58f73267 sh -c 'cat > /home/dev/dev.tar' < ./dev.tar
-
 압축하기
+pwd : Host /home 에서 실행
 tar -czvf dev.tar.gz /home/dev
 
+이건 Host -> 컨테이너에 밀어넣기
+pwd : Host /home 에서 실행
+docker exec -i 1d4bbd734fba sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz
+
 압축풀기
+pwd : Container / 에서 실
 tar -xzvf dev.tar.gz
 
 
