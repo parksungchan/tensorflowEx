@@ -64,11 +64,11 @@ docker cp 49ad58f73267:/home/dev /home
 이건 Host -> 컨테이너에 밀어넣기
 docker exec -i 49ad58f73267 sh -c 'cat > /home/dev/dev.tar' < ./dev.tar
 
+압축하기
+tar -czvf dev.tar.gz /home/dev
 
-
-
-
-
+압축풀기
+tar -xzvf dev.tar.gz
 
 
 
