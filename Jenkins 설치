@@ -99,6 +99,8 @@ Build step 'Send build artifacts over SSH' changed build result to UNSTABLEFinis
 
 
 11. TDD 사용을위한   .          
+Publish JUnit test result report
+Test report XMLs : tests/*.xml
 
 
 
