@@ -85,6 +85,10 @@
 9. Jenkins Scheduled 설정.
 Project -> 구성 -> 빌드유발 -> Build periodically -> H/60 * * * *
 
+10. Exec in pty Check .체크해야아래와같은  에러가발생안함     .
+SSH: Disconnecting configuration [AI(172.31.46.138)] ...
+ERROR: Exception when publishing, exception message [Exec timed out or was interrupted after 120,007 ms]
+Build step 'Send build artifacts over SSH' changed build result to UNSTABLEFinished: UNSTABLE
 
 
 ○ 서버#1 : 하둡용( 172.31.46.136)   
