@@ -51,6 +51,13 @@
    http_request
    http-post
    
+   jquery
+   junit-attachments
+   javadoc
+   maven-plugin
+   junit-realtime-test-reporter
+   junit
+   
 6. Git 설치를 한다.    
    https://git-for-windows.github.io/
    Jenkins 재시작 
@@ -89,6 +96,12 @@ Project -> 구성 -> 빌드유발 -> Build periodically -> H/60 * * * *
 SSH: Disconnecting configuration [AI(172.31.46.138)] ...
 ERROR: Exception when publishing, exception message [Exec timed out or was interrupted after 120,007 ms]
 Build step 'Send build artifacts over SSH' changed build result to UNSTABLEFinished: UNSTABLE
+
+
+11. TDD 사용을위한   .          
+
+
+
 
 
 ○ 서버#1 : 하둡용( 172.31.46.136)   
