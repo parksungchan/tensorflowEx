@@ -58,6 +58,8 @@
    junit-realtime-test-reporter
    junit
    
+   cobertura
+   
 6. Git 설치를 한다.    
    https://git-for-windows.github.io/
    Jenkins 재시작 
