@@ -14,6 +14,14 @@
    CMD : docker info
          정보를 확인해 줄수 있다.
 
+Docker 설치
+rpm -ivh libcgroup-0.40.rc1-17.el6_7.x86_64.rpm
+
+rpm -ivh libcgroup-devel-0.40.rc1-17.el6_7.x86_64.rpm
+
+rpm -ivh docker-engine-1.7.1-1.el6.x86_64.rpm
+
+
 ----------------------------------------------------------
 docker 를 시작 하는 명령어이다.
 service docker start
