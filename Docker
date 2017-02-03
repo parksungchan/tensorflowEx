@@ -36,6 +36,7 @@ docker rmi -f hoyai/hoyai_ing
 
 docker Image 가져오기.
 docker pull hoyai/hoyai_ing
+docker pull hoyai/client:v0.1
 
 Image List 확인.
 docker images
