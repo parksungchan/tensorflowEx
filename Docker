@@ -41,6 +41,7 @@ docker images
 원래 서버에는 XRDP 가 설치 되어있다고 가정하고 Container 생성시 아래와 같이 해주면 그래픽 사용가능
 docker run -it --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -p 8080:8080 -p 8998:8998 -p 8989:8989 -p 7077:7077 tmddno1/tensormsa:v1
 docker run -i -t hoyai/hoyai_ing /bin/bash
+docker run -i -t --name hoyaCT hoyai/hoyai_ing /bin/bash
 
 docker start containerID
 
@@ -83,10 +84,12 @@ tar -xzvf dev.tar.gz
 
     
 pwd : Host /home 에서 실행 
-tar -czvf dev.tar.gz /home/dev
-docker exec -i 1d4bbd734fba sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz
-docker exec -i 1d4bbd734fba rm -rf /home/dev/*
-docker exec -i 1d4bbd734fba tar -xzvf dev.tar.gz 
+tar -czvf dev.tar.gz /home/dev 
+docker exec -i hoyaCT sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz 
+docker exec -i hoyaCT rm -rf /home/dev/*
+docker exec -i hoyaCT tar -xzvf dev.tar.gz
+docker exec -i hoyaCT chmod 755 -R /home/dev
+
 
 
 .
