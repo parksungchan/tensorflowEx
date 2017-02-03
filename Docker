@@ -26,30 +26,31 @@ docker 를 시작 하는 명령어이다.
 service docker start
 
 Container 삭제.
-docker rm -f hoyaCT
+docker rm -f hoya_dev
 
 docker 전체 Image 삭제
 docker rm $(docker ps -a -q)
 
 위 이미지 삭제가 안먹을시 개별로 삭제 해야 한다.
-docker rmi -f hoyai/hoyai_ing
+docker rmi -f hoyai/client:v0.1
 
 docker Image 가져오기.
-docker pull hoyai/hoyai_ing
 docker pull hoyai/client:v0.1
 
 Image List 확인.
 docker images
 
 Container 생성.
-docker run -i -t --name hoyaCT hoyai/hoyai_ing /bin/bash
-docker run -i -t --name hoyaCT hoyai/client:v0.1 /bin/bash
+docker run -itd --name hoyai_dev -p 2266:2266 -p 5432:5432 -p 8000:8000 --volume /root/data/:/root/lib/ hoyai/client:v0.1
 
 Container Start.
-docker start hoyaCT
+docker start hoyai_dev
 
 Container 접속.
-docker attach hoyaCT
+docker attach hoyai_dev
+
+pwd /home/dev/hoyai
+python manage.py runserver &
 ----------------------------------------------------------
 Docker Image SAVE
 $ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
@@ -89,10 +90,10 @@ tar -xzvf dev.tar.gz
     
 pwd : Host /home 에서 실행 
 tar -czvf dev.tar.gz /home/dev 
-docker exec -i hoyaCT sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz 
-docker exec -i hoyaCT rm -rf /home/dev/*
-docker exec -i hoyaCT tar -xzvf dev.tar.gz
-docker exec -i hoyaCT chmod 755 -R /home/dev
+docker exec -i hoya_dev sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz 
+docker exec -i hoya_dev rm -rf /home/dev/*
+docker exec -i hoya_dev tar -xzvf dev.tar.gz
+docker exec -i hoya_dev chmod 755 -R /home/dev
 
 
 
