@@ -43,6 +43,7 @@ docker images
 
 Container 생성.
 docker run -i -t --name hoyaCT hoyai/hoyai_ing /bin/bash
+docker run -i -t --name hoyaCT hoyai/client:v0.1 /bin/bash
 
 Container Start.
 docker start hoyaCT
