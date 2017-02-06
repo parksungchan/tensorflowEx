@@ -110,6 +110,7 @@ docker exec -i hoyai_dev sh -c 'cat > /home/dev/hoyai.tar.gz' < ./hoyai.tar.gz
 docker exec -i hoyai_dev rm -rf /home/dev/hoyai
 docker exec -i hoyai_dev mkdir /home/dev/hoyai
 docker exec -i hoyai_dev tar -xzvf /home/dev/hoyai.tar.gz -C /home/dev
+docker exec -i hoyai_dev chmod 755 -R /home/dev/hoyai
 
 12. TDD 사용을위한   .          
 Publish JUnit test result report
