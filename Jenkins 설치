@@ -99,8 +99,19 @@ SSH: Disconnecting configuration [AI(172.31.46.138)] ...
 ERROR: Exception when publishing, exception message [Exec timed out or was interrupted after 120,007 ms]
 Build step 'Send build artifacts over SSH' changed build result to UNSTABLEFinished: UNSTABLE
 
+11. Server Shell 실행명령어.
+cd /home/dev
+rm -rf hoyai.tar.gz
+tar -czvf /home/dev/hoyai.tar.gz hoyai
 
-11. TDD 사용을위한   .          
+docker exec -i hoyai_dev rm -rf /home/dev/hoyai.tar.gz
+docker exec -i hoyai_dev sh -c 'cat > /home/dev/hoyai.tar.gz' < ./hoyai.tar.gz
+
+docker exec -i hoyai_dev rm -rf /home/dev/hoyai
+docker exec -i hoyai_dev mkdir /home/dev/hoyai
+docker exec -i hoyai_dev tar -xzvf /home/dev/hoyai.tar.gz -C /home/dev
+
+12. TDD 사용을위한   .          
 Publish JUnit test result report
 Test report XMLs : tests/*.xml
 
