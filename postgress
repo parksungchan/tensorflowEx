@@ -7,3 +7,7 @@ postgres@35a2edd355a3:/home/dev/hoyai$ psql tensormsa
 
 컨트롤D가 나가는 명령어
 exit
+
+DB 변경시마다실행.
+root@35a2edd355a3:/home/dev/hoyai# ./manage.py makemigrations
+root@35a2edd355a3:/home/dev/hoyai# ./manage.py makemigrate
