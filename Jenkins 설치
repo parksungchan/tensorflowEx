@@ -107,10 +107,14 @@ tar -czvf /home/dev/hoyai.tar.gz hoyai
 docker exec -i hoyai_dev rm -rf /home/dev/hoyai.tar.gz
 docker exec -i hoyai_dev sh -c 'cat > /home/dev/hoyai.tar.gz' < ./hoyai.tar.gz
 
-docker exec -i hoyai_dev rm -rf /home/dev/hoyai
-docker exec -i hoyai_dev mkdir /home/dev/hoyai
+docker exec -i hoyai_dev rm -rf /home/dev/hoyai/*
 docker exec -i hoyai_dev tar -xzvf /home/dev/hoyai.tar.gz -C /home/dev
 docker exec -i hoyai_dev chmod 755 -R /home/dev/hoyai
+
+docker exec -i hoyai_dev python manage.py jenkins
+
+이건 컨테이너 -> Host 가져오기
+docker cp 49ad58f73267:/home/dev /home
 
 12. TDD 사용을위한   .          
 Publish JUnit test result report
