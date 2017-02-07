@@ -95,6 +95,10 @@ docker exec -i hoya_dev sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz
 docker exec -i hoya_dev rm -rf /home/dev/*
 docker exec -i hoya_dev tar -xzvf dev.tar.gz
 docker exec -i hoya_dev chmod 755 -R /home/dev
+----------------------------------------------------------------------------------------------------------------
+DJango Exec .
+./manage.py runserver 35a2edd355a3:8000
+
 
 
 
