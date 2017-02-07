@@ -1,12 +1,10 @@
-1. Docker Hub에 가입을해준다.
+1. Docker Hub에 가입을해준다. Repositories 를 만들어준다.
    https://hub.docker.com
-   
-2. Repositories 를 만들어준다.
 
-3. Docker를 가져오는 명령어 이다.
-   docker pull soul8085/parksungchan:latest  
+2. Docker를 가져오는 명령어 이다.
+   docker pull soul8085/parksungchan:latest
 
-4. Docker Push
+3. Docker Push
    CMD : docker login
         id : soul8085
         pass : pass 입력.
@@ -20,7 +18,6 @@ rpm -ivh libcgroup-0.40.rc1-17.el6_7.x86_64.rpm
 rpm -ivh libcgroup-devel-0.40.rc1-17.el6_7.x86_64.rpm
 
 rpm -ivh docker-engine-1.7.1-1.el6.x86_64.rpm
-
 ----------------------------------------------------------
 docker 를 시작 하는 명령어이다.
 service docker start
@@ -46,49 +43,22 @@ docker run -itd --name hoyai_dev -p 2266:2266 -p 5432:5432 -p 8000:8000 --volume
 Container Start.
 docker start hoyai_dev
 docker exec -it hoyai_dev bash
-
-Container 접속.
-docker attach hoyai_dev
-
-pwd /home/dev/hoyai
-python manage.py runserver &
-----------------------------------------------------------
-Docker Image SAVE
-$ sudo docker save tmddno1/tensormsa:v5 > /home/ct_01.tar
-
-$ sudo docker load < /var/ct_01.tar  // 이미지 복원 
-$ docker iamges | grep tmddno1/tensormsa:v5 // 이미지가 복원되었는지 확인
- 
-현재 디렉토리에 도커 파일 가져오기   
-$ sudo docker cp hello-nginx:/etc/nginx/nginx.conf ./
-
-인터넷을 통행 docker 삭제
-rpm -e docker
-
-yum -y remove docker
-
-인터넷 통하지 않고 docker 삭제 하기
-yum --disablerepo=\* remove dockerdocker 
-
-재설치
-rpm -ivh docker-1.12.6-15.git037a2f5.fc26.aarch64.rpm
 ---------------------------------------------------------------------
 이건 컨테이너 -> Host 가져오기
 docker cp 49ad58f73267:/home/dev /home
-
-압축하기
-pwd : Host /home 에서 실행
-tar -czvf dev.tar.gz /home/dev
 
 이건 Host -> 컨테이너에 밀어넣기
 pwd : Host /home 에서 실행
 docker exec -i 1d4bbd734fba sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz
 
+압축하기
+pwd : Host /home 에서 실행
+tar -czvf dev.tar.gz /home/dev
+
 압축풀기
 pwd : Container / 에서 실
 tar -xzvf dev.tar.gz
 
-    
 pwd : Host /home 에서 실행 
 tar -czvf dev.tar.gz /home/dev 
 docker exec -i hoya_dev sh -c 'cat > /dev.tar.gz' < ./dev.tar.gz 
