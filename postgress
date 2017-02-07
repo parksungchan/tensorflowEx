@@ -1,0 +1,8 @@
+DB가 접속 되어 있는지 확인. 버전이 보여야 함.
+root@35a2edd355a3:/home/dev/hoyai# su postgres
+postgres@35a2edd355a3:/home/dev/hoyai$ psql tensormsa
+
+아래명령어는 전체 계정.
+\l
+
+컨트롤D가 나가는 명령어
