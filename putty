@@ -41,8 +41,11 @@ root
 pass
 
 # OS 버전 확인
+cnetos
 $ cat /etc/redhat-release 
 
+ubuntu
+cat /etc/issue
 
 
 
