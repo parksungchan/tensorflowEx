@@ -1,0 +1,14 @@
+apt-get install ibus ibus-hangul 
+
+add-apt-repository ppa:createsc/3beol
+
+apt-get update; sudo apt-get install ibus ibus-hangul
+
+Sysem -> Control Center -> Look and Feel : Language Support Click
+
+Keyboard input method system이 IBus로 되어있는지 확인
+ 
+
+
+
+
