@@ -22,7 +22,18 @@ sudo apt-get install aptitude
 
 sudo aptitude install pgadmin3
 
+root@acbed1c0e105:/home/dev/hoyai# apt-cache policy pgadmin3
+pgadmin3:
+  Installed: (none)
+  Candidate: 1.22.2-1.pgdg14.04+1
+  Version table:
+     1.22.2-1.pgdg14.04+1 500
+        500 http://apt.postgresql.org/pub/repos/apt trusty-pgdg/main amd64 Packages
+     1.22.0-1 500
+        500 http://archive.ubuntu.com/ubuntu xenial/universe amd64 Packages
 
+
+sudo apt-get install pgadmin3=1.22.0-1 pgadmin3-data=1.22.0-1
 
 
 
