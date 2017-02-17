@@ -35,5 +35,7 @@ pgadmin3:
 
 sudo apt-get install pgadmin3=1.22.0-1 pgadmin3-data=1.22.0-1
 
+###################################################################################
+sudo apt-get install python-psycopg2
 
 
