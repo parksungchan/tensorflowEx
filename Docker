@@ -47,6 +47,8 @@ docker exec -it hoyai_dev bash
 DJango Exec .
 ./manage.py runserver 35a2edd355a3:8000
 
+docker build -t joinc/sinatra:v2 ./
+
 
 
 
