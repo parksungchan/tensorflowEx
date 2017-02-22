@@ -1,0 +1,19 @@
+zlib1g-dev 꾸러미가 설치되어 있어어 한다.
+
+# apt-get install zlib1g-dev
+
+HDF5의 빠른 압축 기능을 이용하려면 szip을 설치한다.
+
+$ wget http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
+$ tar xvfz szip-2.1.tar.gz
+$ cd szip-2.1
+$ ./configure --prefix=/usr/local 2>&1 | tee i.txt
+$ make 2>&1 | tee m.txt
+$ make check 2>&1 | tee mc.txt
+$ sudo make install 2>&1 | tee mi.txt
+
+$ wget https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-1.8.18.tar.bz2
+$ tar xvfj hdf5-1.8.18.tar.bz2
+$ cd hdf5-1.8.18
+$ CC=/usr/local/bin/mpicc RUNPARALLEL="/usr/bin/srun -n \$\${NPROCS:=6}" ./configure --enable-parallel --with-szlib=/usr/local --with-mpe=/usr/local --prefix=/usr/local 2>&1 | tee c.txt
+$ make 2>&1 | tee m.txt
