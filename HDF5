@@ -17,3 +17,10 @@ $ tar xvfj hdf5-1.8.18.tar.bz2
 $ cd hdf5-1.8.18
 $ CC=/usr/local/bin/mpicc RUNPARALLEL="/usr/bin/srun -n \$\${NPROCS:=6}" ./configure --enable-parallel --with-szlib=/usr/local --with-mpe=/usr/local --prefix=/usr/local 2>&1 | tee c.txt
 $ make 2>&1 | tee m.txt
+
+
+
+
+Hdfview 설치.
+sudo apt-get install hdfview
+
