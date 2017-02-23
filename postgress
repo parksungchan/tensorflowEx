@@ -18,6 +18,10 @@ root@35a2edd355a3:/home/dev/hoyai# ./manage.py makemigrations
 root@35a2edd355a3:/home/dev/hoyai# ./manage.py migrate
 
 PG Admin3 Install
+apt-get update
+
+apt-get upgrade
+
 sudo apt-get install aptitude
 
 sudo aptitude install pgadmin3
