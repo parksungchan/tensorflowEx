@@ -1,0 +1,14 @@
+rabbitmqctl set_permissions –p / tensormsa “.*”“.*”“.*”
+
+apt-get install rabbitmq-server
+
+service rabbitmq-server start
+
+rabbitmqctl add_user tensormsa tensormsa
+
+rabbitmqctl set_user_tags tensormsa administrator
+
+celery -A hoyai worker -l info
+
+
+
