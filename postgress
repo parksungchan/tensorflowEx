@@ -41,5 +41,8 @@ sudo apt-get install pgadmin3=1.22.0-1 pgadmin3-data=1.22.0-1
 
 ###################################################################################
 sudo apt-get install python-psycopg2
+###################################################################################
+reset db
 
-
+delete from django_migrations
+where app = 'master'
