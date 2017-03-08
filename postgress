@@ -46,3 +46,14 @@ reset db
 
 delete from django_migrations
 where app = 'master'
+
+select * from master_wf_task_submenu_rule
+select * from master_nn_def_list_info
+select * from master_nn_ver_wflist_info order by nn_wf_ver_id
+select * from master_nn_wf_node_info
+select * from master_nn_wf_state_info
+select * from master_nn_wf_node_relation
+
+
+
+
