@@ -1,0 +1,9 @@
+sudo apt-get update 
+
+sudo apt-get install google-chrome-stable
+
+-- opt-> google -> chrome -> google_chrome edit
+exec -a "$0" "$HERE/chrome"  "$@" ->
+exec -a "$0" "$HERE/chrome"  "$@" --user-data-dir $HOME
+
+google-chrome-stable --no-sandbox
