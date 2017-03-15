@@ -7,32 +7,11 @@ import numpy as np
 from datetime import timedelta
 from cluster.data.data_node_image import DataNodeImage
 ########################################################################
-def get_training_data(self, dataconf):
-    println(dataconf)
-    train_data_set = None
-    train_label_set = None
-    println("Start Down OK....")
-    from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
-    tf.set_random_seed(0)
-
-    mnist = read_data_sets("data", one_hot=True, reshape=False, validation_size=0)
-
-    train_data_set = mnist.test.images
-    train_label_set = mnist.test.labels
-    println("End Down OK....")
-
-    return train_data_set, train_label_set
-########################################################################
-# class_numbers = ['cat', 'dog']
 # nm_classes = label cnt or max label cnt
-def one_hot_encoded(class_numbers, num_classes=None):
-    cn_cnt = len(class_numbers)
-    if num_classes is None:
-        num_classes = len(class_numbers)
+def one_hot_encoded(num_classes):
+    one = np.zeros((num_classes, num_classes))
 
-    one = np.zeros((cn_cnt, num_classes))
-
-    for i in range(cn_cnt):
+    for i in range(num_classes):
         for j in range(num_classes):
             if i == j:
                 one[i][j] = 1
@@ -134,7 +113,7 @@ def random_batch(images_train, labels_train):
 
     return x_batch, y_batch
 ########################################################################
-def train(data_set, label_set, labels, L1, X, Y, train_cnt, model_path):
+def train(img_data, targets, labels, L1, X, Y, train_cnt, model_path, num_classes, x_size, y_size, channel):
 
     try:
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=L1, labels=Y))
@@ -161,15 +140,40 @@ def train(data_set, label_set, labels, L1, X, Y, train_cnt, model_path):
                 println("None to restore checkpoint. Initializing variables instead.")
                 sess.run(tf.initialize_all_variables())
 
-            ################################################################
-            println("Train Optimize Call:"+ str(train_cnt))
+            ################################################################ Label
+            println("Label //////////////////////////////////////////////////////")
+            labelsHot = one_hot_encoded(num_classes)
+            println(labels)
+            println(labelsHot)
+            ################################################################ Image Label
+            println("Img Label /////////////////////////////////////////////////")
+            targetsHot = np.zeros((len(targets), num_classes))
+            k = 0
+            for i in targets:
+                i = i.tolist().decode('UTF-8')
+                j = labels.index(i)
+                targetsHot[k] = labelsHot[j]
+                k += 1
+            println(targetsHot)
+            ################################################################ Image
+            println("Img //////////////////////////////////////////////////////")
+            x_batch = np.zeros((len(img_data), len(img_data[0])))  # 2, 30000
+            j = 0
+            for i in img_data:
+                i = i.tolist()
+                x_batch[j] = i
+                j += 1
+            println(x_batch)
+
+            x_batch = np.reshape(x_batch, (-1, x_size, y_size, channel))
+            ################################################################ Train
+            println("Train Optimize Call:" + str(train_cnt))
 
             start_time = time.time()
-
             for i in range(train_cnt):
-                x_batch, y_true_batch = random_batch(data_set, label_set)
+                # x_batch, y_true_batch = random_batch(data_set, label_set)
 
-                feed_dict_train = {X: x_batch,Y: y_true_batch}
+                feed_dict_train = {X: x_batch,Y: targetsHot}
                 sess.run(optimizer, feed_dict=feed_dict_train)
 
                 # Print status to screen every 100 iterations (and last).
@@ -218,31 +222,22 @@ class NeuralNetNodeCnn(NeuralNetNode):
 
         x_size = dataconf["preprocess"]["x_size"]
         y_size = dataconf["preprocess"]["y_size"]
-        train_cnt = int(netconf["config"]["epoch"])
+        channel = dataconf["preprocess"]["channel"]
+        train_cnt = netconf["config"]["traincnt"]
+        num_classes = netconf["config"]["num_classes"]
 
-        num_classes = 10
-        x_size = 28  # MNIST 이미지의 가로 크기
-        y_size = 28  # MNIST 이미지의 세로 크기
-        color = 1
-        train_cnt = 2
-
-        X = tf.placeholder(tf.float32, shape=[None, x_size, y_size, color], name='x')
+        # train_cnt = 10
+        # num_classes = 5
+        println(num_classes)
+        X = tf.placeholder(tf.float32, shape=[None, x_size, y_size, channel], name='x')
         Y = tf.placeholder(tf.float32, shape=[None, num_classes], name='y')
-
         ################################################################
-        # img_data, targets = get_training_data(self, dataconf)
-        # print(img_data)
-        # print(targets)
         node_id = str(conf_data["node_list"][0])
         img_data, targets, labels = DataNodeImage().load_train_data(node_id)
 
-        # println(img_data)
-        # println(targets)
-        # println(labels)
-
         netcheck, model = get_model(self, netconf, X, num_classes)
         if netcheck == "S":
-            train(img_data, targets, labels, model, X, Y, train_cnt, model_path)
+            train(img_data, targets, labels, model, X, Y, train_cnt, model_path, num_classes, x_size, y_size, channel)
         else:
             println("net_check=" + netcheck)
 
