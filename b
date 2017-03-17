@@ -127,7 +127,7 @@ def get_model(self, netconf, X, num_classes):
 
     return net_check, L1
 ########################################################################
-def train(input_data, L1, X, Y, netconf, dataconf):
+def train_cnn(input_data, L1, X, Y, netconf, dataconf):
     x_size = dataconf["preprocess"]["x_size"]
     y_size = dataconf["preprocess"]["y_size"]
     channel = dataconf["preprocess"]["channel"]
@@ -200,7 +200,7 @@ def train(input_data, L1, X, Y, netconf, dataconf):
     println("Time usage: " + str(timedelta(seconds=int(round(time_dif)))))
 ########################################################################
 def train_run(x_batch, y_batch, netconf, dataconf, X, Y, optimizer, accuracy, global_step):
-    save_name = "model"
+    modelname = netconf["key"]["modelname"]
     train_cnt = netconf["config"]["traincnt"]
     # println(netconf["key"]["nn_id"])
     # println(netconf["key"]["wf_ver_id"])
@@ -235,12 +235,44 @@ def train_run(x_batch, y_batch, netconf, dataconf, X, Y, optimizer, accuracy, gl
             if (i_global % 100 == 0) or (i == train_cnt - 1):
                 println("Save model_path=" + model_path)
                 saver.save(sess,
-                           save_path=model_path+"/"+save_name,
+                           save_path=model_path+"/"+modelname,
                            global_step=global_step)
 
-    model_file_delete(model_path, save_name)
+    model_file_delete(model_path, modelname)
     println("Saved checkpoint.")
 ########################################################################
+def predict_cnn(_fileName, fileType, netconf):
+    modelname = netconf["key"]["modelname"]
+    model_path = get_model_path(netconf["key"]["nn_id"], netconf["key"]["wf_ver_id"], "cnnmodel")
+    save_path = model_path + "/" + modelname
+    x, y_true, global_step, optimizer, accuracy, y_pred_cls = get_network_variable()
+
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        try:
+            last_chk_path = tf.train.latest_checkpoint(checkpoint_dir=save_path)
+            saver.restore(sess, save_path=last_chk_path)
+            # If we get to this point, the checkpoint was successfully loaded.
+            print("Restored checkpoint from:", last_chk_path)
+        except:
+            raise "Model Not Pound"
+
+        images_test, msg = cifar10.get_binary_images(sess, _fileName, fileType)
+        cls_test = [0]
+        labels_test = dataset.one_hot_encoded(class_numbers=cls_test, num_classes=cifar10.num_classes)
+
+        cls_true_name = cifar10.predict_cls_one(images=images_test
+                                           , labels=labels_test
+                                           , x=x
+                                           , y_true=y_true
+                                           , session=sess
+                                           , y_pred_cls=y_pred_cls
+                                           , msg=msg)
+
+        print("Predict Class Name>>>>>", cls_true_name)
+
+        return cls_true_name
+
 class NeuralNetNodeCnn(NeuralNetNode):
     """
     """
@@ -266,11 +298,18 @@ class NeuralNetNodeCnn(NeuralNetNode):
 
         netcheck, model = get_model(self, netconf, X, num_classes)
         if netcheck == "S":
-            train(input_data, model, X, Y, netconf, dataconf)
+            train_cnn(input_data, model, X, Y, netconf, dataconf)
         else:
             println("net_check=" + netcheck)
 
         println("train end......")
+
+        println("predict start ........")
+
+        _fileName = "/"
+        fileType = "file" # url
+        predict_cnn(_fileName, fileType)
+
         return None
 
     def _init_node_parm(self, node_id):
