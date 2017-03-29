@@ -53,3 +53,5 @@ cat /etc/issue
 reboot -f
 
 .
+zip -r test.zip ./*  
+unzip happy.zip 
