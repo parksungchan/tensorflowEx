@@ -49,7 +49,46 @@ DJango Exec .
 
 docker build -t joinc/sinatra:v2 ./
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+신규
+docker run -itd --env="VNC_RESOLUTION=1920x1080" --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --name hoyai_dev -p 5672:5672 -p 2266:2266 -p 5432:5432 -p 8000:8000 -p 6006:6006 -p 8888:8888 -p 5901:5901 hoyai/hoyai_dev_docker
 
+5. Register Docker Service
+
+  cd /etc/systemd/system/
+  vi docker_hoyai.service
+  docker_hoyai.service
+  [Unit]
+  Description=hoyai container
+  Requires=docker.service
+  After=docker.service
+
+  [Service]
+  Restart=always
+  ExecStart=/usr/bin/docker start -a hoyai_dev
+  ExecStop=/usr/bin/docker stop -t 2 hoyai_dev
+
+  [Install]
+  WantedBy=default.target
+  Service enable & start
+  sudo systemctl enable docker_hoyai.service
+
+  sudo systemctl start docker_hoyai.service
+  Service disable & stop
+  sudo systemctl disable docker_hoyai.service
+
+  sudo systemctl stop docker_hoyai.service
+
+6. Restart aws
+
+   Check for hoyai_dev_docker started after aws reboot
+
+   docker ps
+
+7. Install VNC
+
+   Go to chrome app store
+   Find VNC Viewer for Google Chrome
 
 
 .
