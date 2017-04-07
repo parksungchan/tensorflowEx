@@ -18,4 +18,8 @@ celery -A hoyai flower &
 flower --auto_refresh=False
 
 flower config change 
+celery flower -A hoyai --address=2fb1ece74beb --port:5555 &
+
 celery flower -A hoyai --address=52.78.67.19 --port:5555 &
+
+
