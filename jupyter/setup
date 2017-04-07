@@ -1,0 +1,6 @@
+config ip change
+
+vi /root/.jupyter/jupyter_notebook_config.py
+
+c.NotebookApp.ip = '2fb1ece74beb'
+
