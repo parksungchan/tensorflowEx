@@ -13,4 +13,9 @@ rabbitmqctl set_permissions –p / tensormsa “.*”“.*”“.*”
 celery -A hoyai worker -l info
 
 
+pip install flower
+celery -A hoyai flower &
+flower --auto_refresh=False
 
+flower config change 
+celery flower -A hoyai --address=52.78.67.19 --port:5555
