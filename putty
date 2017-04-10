@@ -55,3 +55,12 @@ reboot -f
 .
 zip -r test.zip ./*  
 unzip happy.zip 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+window -> linux file transfer
+http://winscp.net/eng/download.php에서 WinSCP를 다운로드하여 설치합니다. 
+대부분 사용자의 경우 기본 설치 옵션을 그대로 사용해도 좋습니다.
+
+WinSCP를 시작합니다.
+
