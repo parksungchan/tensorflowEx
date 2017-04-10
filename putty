@@ -65,4 +65,4 @@ http://winscp.net/eng/download.php에서 WinSCP를 다운로드하여 설치합�
 WinSCP를 시작합니다.
 
 cp
-docker cp foo.txt mycontainer:/foo.txt
+docker exec -i hoyai_dev sh -c 'cat > /hoya_src_root/nn00004/6/datasrc/Spanner.zip' < /home/dev/file/Spanner.zip
