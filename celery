@@ -17,9 +17,13 @@ pip install flower
 celery -A hoyai flower &
 flower --auto_refresh=False
 
-flower config change 
-celery flower -A hoyai --address=2fb1ece74beb --port:5555 &
-
-celery flower -A hoyai --address=52.78.67.19 --port:5555 &
-
+celery flower -A hoyai --address=127.0.0.1 --port=5555
+celery flower -A hoyai --address=127.0.0.1 --port=5555
+celery -A hoyai flower --address=2fb1ece74beb --port=5555
+celery -A hoyai flower --address=52.78.67.19 --port=5555
+celery flower -A hoyai --broker=amqp://tensormsa:tensormsa@52.78.67.19:5672 &
+                      Broker: amqp://tensormsa:**@2fb1ece74beb:5672//
+celery flower -A hoyai --address=127.0.0.1 --port=5555
+celery flower -A hoyai --address=52.78.67.19 --broker=amqp://tensormsa:tensormsa@52.78.67.19:5672
+celery flower -A hoyai --address=2fb1ece74beb --broker=amqp://tensormsa:tensormsa@2fb1ece74beb:5672
 
