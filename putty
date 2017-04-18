@@ -70,3 +70,7 @@ docker exec -i hoyai_dev sh -c 'cat > /hoya_src_root/nn00004/6/evaldata/20170421
 
 docker cp hoyai_dev:/hoya_model_root/nn00004/6/netconf_node /home/dev/model
 docker cp hoyai_dev:/hoya_str_root/nn00004/6/datasrc /home/dev/hdf5
+
+
+
+./manage.py runserver 2fb1ece74beb:8000 --nothreading --noreload
