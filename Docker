@@ -93,7 +93,8 @@ docker run -itd --env="VNC_RESOLUTION=1920x1080" --env="DISPLAY" --env="QT_X11_N
 
 .
 ps ef|grep vnc
-vncserver -kill :7
-rm -rfv  /tmp/.X*
+vncserver -kill :2
+rm -rf /tmp/.X1-lock
 
 vncserver :1 -geometry 1600x900
+
