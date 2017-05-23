@@ -1,0 +1,7 @@
+{
+      "preprocess": {"x_size": 28,
+                  "y_size": 28,
+                  "channel":1}
+   ,"labels":["motor", "car", "glove", "airplane", "bolt"]
+
+}

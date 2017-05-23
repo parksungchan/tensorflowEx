@@ -1,0 +1,37 @@
+{
+ "config": {"learnrate": 0.001,
+         "traincnt": 1,
+         "batch_size":10000,
+         "num_classes":10,
+         "predictcnt": 10
+         }
+ ,"layer1": {
+         "type": "cnn",
+         "active": "relu",
+         "cnnfilter": [3, 3],
+         "cnnstride": [1, 1],
+         "maxpoolmatrix": [2, 2],
+         "maxpoolstride": [2, 2],
+         "padding": "SAME",
+         "droprate": "0.8",
+         "numoutputs":32,
+         "layercnt":2
+        }
+ ,"layer2": {
+         "type": "cnn",
+         "active": "relu",
+         "cnnfilter": [3, 3],
+         "cnnstride": [1, 1],
+         "maxpoolmatrix": [2, 2],
+         "maxpoolstride": [2, 2],
+         "padding": "SAME",
+         "droprate": "0.8",
+         "numoutputs":32,
+         "layercnt":1
+        }
+  ,"out": {
+         "active": "softmax",
+         "node_out": 625,
+         "padding": "SAME"
+        }
+}
