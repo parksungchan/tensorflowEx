@@ -5,3 +5,8 @@ vi /root/.jupyter/jupyter_notebook_config.py
 
 c.NotebookApp.ip = '2fb1ece74beb'
 
+jupyter notebook password
+
+1
+
+jupyter notebook --ip=0.0.0.0
