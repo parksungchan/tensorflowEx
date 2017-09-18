@@ -1,0 +1,8 @@
+
+Run -> Debug Configurations -> +
+
+Name : Debug
+
+Script : /home/dev/tensormsa/manage.py
+
+Script Parameter : runserver c24bd823b2e9:8000
