@@ -1,0 +1,31 @@
+#sublime install
+sudo add-apt-repository ppa:webupd8team/sublime-text-3
+
+sudo apt-get update
+
+sudo apt-get install sublime-text-installer
+
+# Package install 3 console -> Ctrl + `
+import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
+
+# Package Conroll :Install Package
+ConvertToUTF8 ( 서브라임 텍스트는 euc-kr 을 지원하지 않는데, 이 플러그인을 깔고 File - Set File Encoding To 에서 EUC-KR을 선택하면 된다. )
+ - Linux, MacOS X 에서는 Codecs33 도 같이 설치해야 제대로 작동한다.
+BracketHighlighter ( 태그의 처음과 끝을 하이라이트 시켜서 코드 가독성을 높여준다. )
+Emmet ( 젠코딩 플러그인이다. 개인적으로는 사용을 안한다. 젠코딩 없이도 서브라임 기본 기능만으로도 부족함이 없다. *젠코딩 API)
+SideBarEnhancements ( 사이드바의 기능을 확장시켜준다. 상대경로로 브라우저 오픈기능을 설정할 수 있어서 매우 유용하다. Only ST3)
+AdvancedNewFile ( 단축키로 원하는 경로에 파일을 생성해준다. lorem\test.html 식으로 입력하면 한번에 생성 되고 폴더가 없으면 생성된다. )
+JQuery ( JQuery 자동완성 기능이 추가된다. )
+CSS Format ( css 를 여러가지 방법으로 정렬시켜준다. )
+CSScomb ( css 의 속성 순서를 원하는 순서로 변경시켜준다. CSSFormat 과 같은 기능도 있다. )
+View in Browser ( 브라우저 오픈 기능의 원조 플러그인이다. chrome, firefox, safari, IE 등 여러 브라우저로 오픈 가능하고 상대 경로도 가능한듯하다. )
+Material Theme ( Material Theme 추천 테마 패키지 Only ST3)
+live reload ( 에디터에서 저장을 하면, 브라우저로 창을 옮기지 않아도 새로고침이 된다. Only ST3)
+ - 크롬 브라우저 확장프로그램 필요
+LiveStyle ( 개발자도구를 열어놓고 수정을 하면 css에 바로 수정이 된다. 반대도 가능하다. )
+ - emmet livestyle 이란 프로그램과 크롬 브라우저 확장프로그램이 필요
+SyncedSideBar ( 현재 포커스된 파일의 위치를 사이드바를 통해 바로바로 포커스를 맞춰준다. 현재 열려 있는 사이드 바 위치가 다른 곳이라도 파일이 어떤 위치에 있는지 포커스를 해줌으로서 알려주는 편리한 기능 )
+ - 패키지 기본 설정에서 reveal-on-activate 값으로 기능을 on/off 가능하다.
+JSX
+
+
