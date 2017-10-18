@@ -1,0 +1,4 @@
+{
+        test: /\.(ttf|eot|svg|jpg|gif|png|woff|woff2)$/,
+        loader: 'file-loader' 
+      }
