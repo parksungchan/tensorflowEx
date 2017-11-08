@@ -18,6 +18,13 @@ rpm -ivh libcgroup-0.40.rc1-17.el6_7.x86_64.rpm
 rpm -ivh libcgroup-devel-0.40.rc1-17.el6_7.x86_64.rpm
 
 rpm -ivh docker-engine-1.7.1-1.el6.x86_64.rpm
+
+Docker CE 설치
+https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
+docker-ce-17.09.0.ce-1.el7.centos.x86_64.rpm
+docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
+
+
 ----------------------------------------------------------------------------------------------------------------
 docker 를 시작 하는 명령어이다.
 service docker start
