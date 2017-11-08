@@ -23,6 +23,23 @@ Docker CE 설치
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
 docker-ce-17.09.0.ce-1.el7.centos.x86_64.rpm
 docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm
+selinux-policy-targeted-3.13.1-301.fc28.noarch.rpm
+selinux-policy-3.13.1-301.fc28.noarch.rpm
+rpm-plugin-selinux-4.14.0-3.fc28.x86_64.rpm
+rpm-libs-4.14.0-3.fc28.x86_64.rpm
+
+
+https://yum.dockerproject.org/repo/main/centos/7/Packages/
+
+
+
+
+rpm -ivh popt-1.16-12.fc28.i686.rpm
+
+rpm -qpR docker-ce-17.09.0.ce-1.el7.centos.x86_64.rpm
+
+
+
 
 
 ----------------------------------------------------------------------------------------------------------------
