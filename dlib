@@ -1,8 +1,0 @@
-sudo apt-get update
-sudo apt-get install cmake
-sudo apt-get install libboost-all-dev
-
-pip install imutils
-conda install -c menpo opencv=2.4.11
-pip install wget
-
