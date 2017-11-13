@@ -14,7 +14,7 @@ def land2coords(landmarks, dtype="int"):
 
     return coords
 
-def objdetectland(img):
+def shape_predictor_68_face_landmarks_download():
     down_pred_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
     down_pred_path = '/home/dev/tensormsa/third_party/objdetectland/'
 
@@ -27,15 +27,20 @@ def objdetectland(img):
     if not os.path.exists(down_pred_path):
         os.makedirs(down_pred_path)
 
-    # if os.path.isfile(bz_pred_path) == False:
-    #     wget.download(down_pred_url,down_pred_path)
-    with open(bz_pred_file, 'rb') as source, open(dt_pred_file, 'wb') as dest:
-        dest.write(bz2.decompress(source.read()))
-
-    face_detector = dlib.get_frontal_face_detector()
+    if os.path.isfile(bz_pred_path) == False:
+        wget.download(down_pred_url, down_pred_path)
+        zipfile = bz2.BZ2File(bz_pred_path)  # open the file
+        data = zipfile.read()  # get the decompressed data
+        newfilepath = bz_pred_path[:-4]  # assuming the filepath ends with .bz2
+        open(newfilepath, 'wb').write(data)  # wr
 
     landmark_predictor = dlib.shape_predictor(dt_pred_path)
 
+    return landmark_predictor
+
+def objdetectland(img):
+    landmark_predictor = shape_predictor_68_face_landmarks_download()
+    face_detector = dlib.get_frontal_face_detector()
     frame = cv2.imread(img)
 
     frame = imutils.resize(frame, width=400)
