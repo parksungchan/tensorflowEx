@@ -6,6 +6,7 @@ import imutils
 import dlib
 import cv2, os, bz2, wget
 import matplotlib.pyplot as plt
+import numpy as np
 
 def face_predictor_download(down_pred_url, bz_pred_file):
     down_pred_path = '/home/dev/tensormsa/third_party/facedetect/'
@@ -25,40 +26,54 @@ def face_predictor_download(down_pred_url, bz_pred_file):
         open(newfilepath, 'wb').write(data)  # wr
 
     predictor = dlib.shape_predictor(dt_pred_path)
-
-    return predictor
-
-def face_lotation(img):
     detector = dlib.get_frontal_face_detector()
-    down_pred_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
-    bz_pred_file = 'shape_predictor_68_face_landmarks.dat.bz2'
-    predictor = face_predictor_download(down_pred_url, bz_pred_file)
-    fa = FaceAligner(predictor, desiredFaceWidth=256)
+    return predictor, detector
 
-    # load the input image, resize it, and convert it to grayscale
+def img_read(img):
     image = cv2.imread(img)
-    image = imutils.resize(image, width=800)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return image
 
-    # show the original input image and detect faces in the grayscale
-    # image
-    # cv2.imshow("Input", image)
-    rects = detector(gray, 2)
+def face_lotation(image, predictor, detector):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    face_boundaries = detector(gray, 2)
 
     # loop over the face detections
-    for rect in rects:
-        # extract the ROI of the *original* face, then align the face
-        # using facial landmarks
+    fa = FaceAligner(predictor, desiredFaceWidth=512)
+    for rect in face_boundaries:
         (x, y, w, h) = rect_to_bb(rect)
-        faceOrig = imutils.resize(image[y:y + h, x:x + w], width=256)
         faceAligned = fa.align(image, gray, rect)
 
     return faceAligned
 
+def objdetectland(image, predictor, detector):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    face_boundaries = detector(gray, 0)
+
+    for (enum, face) in enumerate(face_boundaries):
+        x = face.left()
+        y = face.top()
+        w = face.right() - x
+        h = face.bottom() - y
+        cv2.rectangle(image, (x, y), (x + w, y + h), (120, 160, 230), 2)
+
+        image = image[face.top():face.bottom(), face.left():face.right()]
+
+    return image
+
 if __name__ == "__main__":
     img = ['/home/dev/face/face1.jpg','/home/dev/face/face2.jpg','/home/dev/face/face3.jpg']
+    # img = ['/home/dev/face/face3.jpg']
+
+    down_pred_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
+    bz_pred_file = 'shape_predictor_68_face_landmarks.dat.bz2'
+    predictor, detector = face_predictor_download(down_pred_url, bz_pred_file)
 
     for i in img:
-        frame = face_lotation(i)
+        ir = img_read(i)
+        frame = face_lotation(ir, predictor, detector)
+        # plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        # plt.show()
+
+        frame = objdetectland(frame, predictor, detector)
         plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         plt.show()

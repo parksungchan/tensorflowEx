@@ -6,14 +6,6 @@ import dlib
 import matplotlib.pyplot as plt
 import wget, bz2
 
-def land2coords(landmarks, dtype="int"):
-    coords = np.zeros((68, 2), dtype=dtype)
-
-    for i in range(0, 68):
-        coords[i] = (landmarks.part(i).x, landmarks.part(i).y)
-
-    return coords
-
 def face_predictor_download(down_pred_url, bz_pred_file):
     down_pred_path = '/home/dev/tensormsa/third_party/facedetect/'
     dt_pred_file = bz_pred_file.replace('.bz2','')
@@ -34,6 +26,14 @@ def face_predictor_download(down_pred_url, bz_pred_file):
     predictor = dlib.shape_predictor(dt_pred_path)
 
     return predictor
+
+def land2coords(landmarks, dtype="int"):
+    coords = np.zeros((68, 2), dtype=dtype)
+
+    for i in range(0, 68):
+        coords[i] = (landmarks.part(i).x, landmarks.part(i).y)
+
+    return coords
 
 def objdetectland(img):
     down_pred_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
@@ -62,52 +62,14 @@ def objdetectland(img):
 
     return frame
 
-def objalign(img):
-    down_pred_url = 'http://dlib.net/files/shape_predictor_5_face_landmarks.dat.bz2'
-    bz_pred_file = 'shape_predictor_5_face_landmarks.dat.bz2'
-    predictor = face_predictor_download(down_pred_url, bz_pred_file)
-    face_detector = dlib.get_frontal_face_detector()
-    frame = cv2.imread(img)
-    frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    dets = face_detector(frame_gray, 1)
-
-    num_faces = len(dets)
-    if num_faces == 0:
-        print("Sorry, there were no faces found in '{}'".format(img))
-        exit()
-
-    faces = dlib.full_object_detections()
-    for detection in dets:
-        faces.append(predictor(frame_gray, detection))
-
-    # Get the aligned face images
-    # Optionally:
-    # images = dlib.get_face_chips(img, faces, size=160, padding=0.25)
-    images = dlib.get_face_chips(img, faces, size=320)
-    for image in images:
-        cv_rgb_image = np.array(image).astype(np.uint8)
-        cv_bgr_img = cv2.cvtColor(cv_rgb_image, cv2.COLOR_RGB2BGR)
-        cv2.imshow('image', cv_bgr_img)
-        cv2.waitKey(0)
-
-    # It is also possible to get a single chip
-    image = dlib.get_face_chip(img, faces[0])
-    cv_rgb_image = np.array(image).astype(np.uint8)
-    cv_bgr_img = cv2.cvtColor(cv_rgb_image, cv2.COLOR_RGB2BGR)
-
 if __name__ == "__main__":
-    img = '/home/dev/face/011799.jpg'
-    # img = '/home/dev/face/010164.jpg'
-    img = '/home/dev/face/face1.jpg'
-    img = '/home/dev/face/face2.jpg'
-    img = '/home/dev/face/face3.jpg'
-    # frame = objdetectland(img)
-    # plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    # plt.show()
+    img = ['/home/dev/face/face1.jpg', '/home/dev/face/face2.jpg', '/home/dev/face/face3.jpg']
+    img = ['/home/dev/face/face3.jpg']
 
-    frame = objalign(img)
-    plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    plt.show()
+    for i in img:
+        frame = objdetectland(i)
+        plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        plt.show()
 
 
 
