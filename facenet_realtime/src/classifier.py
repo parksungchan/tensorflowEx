@@ -2,16 +2,20 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-import numpy as np
-from facenet_realtime.src import facenet
-import os
 import math
+import os
 import pickle
+
+import numpy as np
+import tensorflow as tf
 from sklearn.svm import SVC
 
+from facenet_realtime.src.align.align_dataset_mtcnn import AlignDataset
+from facenet_realtime.src.common import facenet
+
+
 class DataNodeImage():
-    def classifier_dataset(self, datadir, modeldir, model_name, image_size, batch_size, type):
+    def classifier_dataset(self, datadir, modeldir, image_size, batch_size, type):
         with tf.Graph().as_default():
             with tf.Session() as sess:
                 dataset = facenet.get_dataset(datadir)
@@ -20,6 +24,8 @@ class DataNodeImage():
                 print('Number of images: %d' % len(paths))
 
                 print('Loading feature extraction model')
+                # get Model Path
+                model_name = facenet.get_pre_model_path(modeldir)
                 facenet.load_model(model_name)
 
                 images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
@@ -75,13 +81,19 @@ class DataNodeImage():
                     print('Accuracy: %.3f' % accuracy)
 
 if __name__ == '__main__':
-    output_dir_path = '/hoya_src_root/org/'
-    modeldir = '/home/dev/tensormsa/third_party/facedetect/'
-    # modeldir = '/..Path to Pre-trained model../20170512-110547/20170512-110547.pb'
-    model_name = facenet.get_pre_model_path(modeldir)
+    datadir = '/home/dev/face/'
+    output_dir_path = '/home/dev/facecv/'
+    modeldir = '/home/dev/tensormsa/third_party/facenet_realtime/pre_model/'
     image_size = 160
     batch_size = 1000
-    type = ["TRAIN", "CLASSIFY"]
+
     # object detect
-    DataNodeImage().classifier_dataset(output_dir_path, modeldir, model_name, image_size, batch_size, type[0])
+    AlignDataset().align_dataset(datadir, output_dir_path, modeldir, image_size)
+
+    # classifier Train
+    DataNodeImage().classifier_dataset(output_dir_path, modeldir, image_size, batch_size, "TRAIN")
+
+
+
+
 

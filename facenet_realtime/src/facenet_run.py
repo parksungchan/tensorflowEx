@@ -7,32 +7,25 @@ import pickle
 import time
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from scipy import misc
 
-from facenet_realtime.src import facenet
 import facenet_realtime.src.align.detect_face as detect_face
-import matplotlib.pyplot as plt
+from facenet_realtime.src.common import facenet
+
 
 class DataNodeImage():
-    def realtime_run(self, output_dir_path, modeldir, model_name, image_size, batch_size):
-        print('Creating networks and loading parameters')
+    def realtime_run(self, output_dir_path, modeldir, image_size, eval="N"):
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                pnet, rnet, onet = detect_face.create_mtcnn(sess, './align/')
+                pnet, rnet, onet = detect_face.create_mtcnn(sess, modeldir+'dets/')
 
-                minsize = 20  # minimum size of face
-                threshold = [0.6, 0.7, 0.7]  # three steps's threshold
-                factor = 0.709  # scale factor
-                frame_interval = 3
-                out_image_size = 182
-
-                HumanNames = ['L001','L002','L003','L004','L005']    #train human name
-
-                print('Loading feature extraction model')
+                # get Model Path
+                model_name = facenet.get_pre_model_path(modeldir)
                 facenet.load_model(model_name)
 
                 images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
@@ -46,22 +39,26 @@ class DataNodeImage():
                     (model, class_names) = pickle.load(infile)
                     print('load classifier file-> %s' % classifier_filename_exp)
 
-                # video_capture = cv2.VideoCapture(0)
-                c = 0
+                minsize = 20  # minimum size of face
+                threshold = [0.6, 0.7, 0.7]  # three steps's threshold
+                factor = 0.709  # scale factor
+                frame_interval = 3
+                out_image_size = 182
 
                 print('Start Recognition!')
+                c = 0
                 prevTime = 0
-
-                # ret, frame = video_capture.read()
-                frame =  misc.imread('/home/dev/faceeval/L004/001728.jpg')
-
-                frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
 
                 curTime = time.time()    # calc fps
                 timeF = frame_interval
 
                 if (c % timeF == 0):
                     find_results = []
+                    # video_capture = cv2.VideoCapture(0)
+                    # ret, frame = video_capture.read()
+                    frame = misc.imread('/home/dev/faceeval/L004/001728.jpg')
+
+                    frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
                     if frame.ndim == 2:
                         frame = facenet.to_rgb(frame)
@@ -78,6 +75,8 @@ class DataNodeImage():
                         scaled = []
                         scaled_reshape = []
                         bb = np.zeros((nrof_faces,4), dtype=np.int32)
+
+                        HumanNames = sorted(os.listdir(output_dir_path))
 
                         for i in range(nrof_faces):
                             emb_array = np.zeros((1, embedding_size))
@@ -104,17 +103,17 @@ class DataNodeImage():
                             predictions = model.predict_proba(emb_array)
                             best_class_indices = np.argmax(predictions, axis=1)
                             best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-                            cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (0, 255, 0), 2)    #boxing face
+                            cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (255, 0, 0), 1)    #boxing face
 
                             #plot result idx under box
                             text_x = bb[i][0]
-                            text_y = bb[i][3] + 20
+                            text_y = bb[i][2]-20
                             # print('result: ', best_class_indices[0])
                             for H_i in HumanNames:
                                 if HumanNames[best_class_indices[0]] == H_i:
                                     result_names = HumanNames[best_class_indices[0]]
                                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                                                1, (0, 0, 255), thickness=1, lineType=2)
+                                                1, (0, 0, 255), thickness=1, lineType=1)
                     else:
                         print('Unable to align')
 
@@ -122,12 +121,12 @@ class DataNodeImage():
                 prevTime = curTime
                 fps = 1 / (sec)
                 str = 'FPS: %2.3f' % fps
-                text_fps_x = len(frame[0]) - 150
+                text_fps_x = len(frame[0])-130
                 text_fps_y = 20
-                cv2.putText(frame, str, (text_fps_x, text_fps_y),
-                            cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 0), thickness=1, lineType=2)
+                # cv2.putText(frame, str, (text_fps_x, text_fps_y),
+                #             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 0), thickness=1, lineType=2)
 
-                plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                plt.imshow(frame)
                 plt.show()
             #     cv2.imshow('Video', frame)
             #
@@ -138,13 +137,13 @@ class DataNodeImage():
             # cv2.destroyAllWindows()
 
 
+
+
 if __name__ == '__main__':
-    output_dir_path = '/hoya_src_root/org/'
-    modeldir = '/home/dev/tensormsa/third_party/facedetect/'
-    # modeldir = '/..Path to Pre-trained model../20170512-110547/20170512-110547.pb'
-    model_name = facenet.get_pre_model_path(modeldir)
+    output_dir_path = '/home/dev/facecv/'
+    modeldir = '/home/dev/tensormsa/third_party/facenet_realtime/pre_model/'
     image_size = 160
     batch_size = 1000
 
     # object detect
-    DataNodeImage().realtime_run(output_dir_path, modeldir, model_name, image_size, batch_size)
+    DataNodeImage().realtime_run(output_dir_path, modeldir, image_size)

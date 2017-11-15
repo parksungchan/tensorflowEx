@@ -4,16 +4,16 @@ from __future__ import print_function
 
 import os
 
-import facenet_realtime.src.align.detect_face as detect_face
 import numpy as np
 import tensorflow as tf
 from scipy import misc
 
-from facenet_realtime.src import facenet
+import facenet_realtime.src.align.detect_face as detect_face
+from facenet_realtime.src.common import facenet
 
 
-class DataNodeImage():
-    def align_dataset(self, datadir, output_dir_path, image_size):
+class AlignDataset():
+    def align_dataset(self, datadir, output_dir_path, modeldir, image_size):
         output_dir = os.path.expanduser(output_dir_path)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -24,7 +24,7 @@ class DataNodeImage():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                pnet, rnet, onet = detect_face.create_mtcnn(sess, './')
+                pnet, rnet, onet = detect_face.create_mtcnn(sess, modeldir+'dets/')
 
         minsize = 20  # minimum size of face
         threshold = [0.6, 0.7, 0.7]  # three steps's threshold
@@ -105,15 +105,6 @@ class DataNodeImage():
 
         print('Total number of images: %d' % nrof_images_total)
         print('Number of successfully aligned images: %d' % nrof_successfully_aligned)
-
-
-if __name__ == '__main__':
-    datadir = '/home/dev/face/'
-    output_dir_path = '/hoya_src_root/org/'
-    image_size = 160
-
-    # object detect
-    DataNodeImage().align_dataset(datadir, output_dir_path, image_size)
 
 
 
