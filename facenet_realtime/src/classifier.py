@@ -9,11 +9,9 @@ import os
 import math
 import pickle
 from sklearn.svm import SVC
-import requests
-import zipfile
 
 class DataNodeImage():
-    def classifier_dataset(self, datadir, modeldir, model_name, image_size, batch_size):
+    def classifier_dataset(self, datadir, modeldir, model_name, image_size, batch_size, type):
         with tf.Graph().as_default():
             with tf.Session() as sess:
                 dataset = facenet.get_dataset(datadir)
@@ -45,23 +43,36 @@ class DataNodeImage():
                 classifier_filename = modeldir+'my_classifier.pkl'
                 classifier_filename_exp = os.path.expanduser(classifier_filename)
 
-                # Train classifier
-                print('Training classifier')
-                model = SVC(kernel='linear', probability=True)
-                model.fit(emb_array, labels)
+                if (type == 'TRAIN'):
+                    # Train classifier
+                    print('Training classifier')
+                    model = SVC(kernel='linear', probability=True)
+                    model.fit(emb_array, labels)
 
-                # Create a list of class names
-                class_names = [cls.name.replace('_', ' ') for cls in dataset]
+                    # Create a list of class names
+                    class_names = [cls.name.replace('_', ' ') for cls in dataset]
 
-                # Saving classifier model
-                with open(classifier_filename_exp, 'wb') as outfile:
-                    pickle.dump((model, class_names), outfile)
-                print('Saved classifier model to file "%s"' % classifier_filename_exp)
-                print('Goodluck')
+                    # Saving classifier model
+                    with open(classifier_filename_exp, 'wb') as outfile:
+                        pickle.dump((model, class_names), outfile)
+                    print('Saved classifier model to file "%s"' % classifier_filename_exp)
+                elif (type == 'CLASSIFY'):
+                    # Classify images
+                    print('Testing classifier')
+                    with open(classifier_filename_exp, 'rb') as infile:
+                        (model, class_names) = pickle.load(infile)
 
+                    print('Loaded classifier model from file "%s"' % classifier_filename_exp)
 
+                    predictions = model.predict_proba(emb_array)
+                    best_class_indices = np.argmax(predictions, axis=1)
+                    best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
 
+                    for i in range(len(best_class_indices)):
+                        print('%4d  %s: %.3f' % (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
 
+                    accuracy = np.mean(np.equal(best_class_indices, labels))
+                    print('Accuracy: %.3f' % accuracy)
 
 if __name__ == '__main__':
     output_dir_path = '/hoya_src_root/org/'
@@ -70,7 +81,7 @@ if __name__ == '__main__':
     model_name = facenet.get_pre_model_path(modeldir)
     image_size = 160
     batch_size = 1000
-
+    type = ["TRAIN", "CLASSIFY"]
     # object detect
-    DataNodeImage().classifier_dataset(output_dir_path, modeldir, model_name, image_size, batch_size)
+    DataNodeImage().classifier_dataset(output_dir_path, modeldir, model_name, image_size, batch_size, type[0])
 
