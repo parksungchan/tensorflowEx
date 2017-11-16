@@ -9,26 +9,21 @@ import tensorflow as tf
 from scipy import misc
 
 import facenet_realtime.src.align.detect_face as detect_face
+from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 
 
 class AlignDataset():
-    def align_dataset(self, datadir, output_dir_path, modeldir, image_size):
-        output_dir = os.path.expanduser(output_dir_path)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        dataset = facenet.get_dataset(datadir)
+    def align_dataset(self):
+        init_value.init_value.init(self)
+        dataset = facenet.get_dataset(self.train_data_path)
+        output_dir = os.path.expanduser(self.detect_data_path)
 
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                pnet, rnet, onet = detect_face.create_mtcnn(sess, modeldir+'dets/')
-
-        minsize = 20  # minimum size of face
-        threshold = [0.6, 0.7, 0.7]  # three steps's threshold
-        factor = 0.709  # scale factor
+                pnet, rnet, onet = detect_face.create_mtcnn(sess, self.dets_path)
 
         # Add a random key to the filename to allow alignment using multiple processes
         random_key = np.random.randint(0, high=99999)
@@ -62,7 +57,7 @@ class AlignDataset():
                                 print('to_rgb data dimension: ', img.ndim)
                             img = img[:, :, 0:3]
 
-                            bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+                            bounding_boxes, _ = detect_face.detect_face(img, self.minsize, pnet, rnet, onet, self.threshold, self.factor)
                             nrof_faces = bounding_boxes.shape[0]
 
                             if nrof_faces > 0:
@@ -93,7 +88,7 @@ class AlignDataset():
                                 bb_temp[3] = det[3]
 
                                 cropped_temp = img[bb_temp[1]:bb_temp[3], bb_temp[0]:bb_temp[2], :]
-                                scaled_temp = misc.imresize(cropped_temp, (image_size, image_size), interp='bilinear')
+                                scaled_temp = misc.imresize(cropped_temp, (self.image_size, self.image_size), interp='bilinear')
 
                                 nrof_successfully_aligned += 1
                                 misc.imsave(output_filename, scaled_temp)
