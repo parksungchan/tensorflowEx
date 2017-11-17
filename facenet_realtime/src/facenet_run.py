@@ -79,7 +79,8 @@ class DataNodeImage():
                 try:
                     frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
                 except:
-                    print('Lotation Run Error:')
+                    if self.debug == True:
+                        print('Lotation Run Error:')
 
             frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
@@ -109,7 +110,8 @@ class DataNodeImage():
 
                     # inner exception
                     if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
-                        print('face is inner of range!')
+                        if self.debug == True:
+                            print('face is inner of range!')
                         continue
 
                     cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
@@ -144,7 +146,8 @@ class DataNodeImage():
                     #     break
                     print(result_names)
             else:
-                print('Unable to align')
+                if self.debug == True:
+                    print('Unable to align')
 
 
 
@@ -176,7 +179,8 @@ class DataNodeImage():
                     try:
                         frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
                     except:
-                        print('Lotation Run Error:'+evalfile_path+'/'+evalfile)
+                        if self.debug == True:
+                            print('Lotation Run Error:'+evalfile_path+'/'+evalfile)
 
                 frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
@@ -224,11 +228,13 @@ class DataNodeImage():
                         true_cnt += 1
                         total_true += 1
                     else :
-                        print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]]+' ]')
+                        if self.debug == True:
+                            print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]]+' ]')
                         false_cnt += 1
                         total_false += 1
                 else:
-                    print('Unable to align')
+                    if self.debug == True:
+                        print('Unable to align')
 
             result.append([evaldir,true_cnt,false_cnt,true_cnt+false_cnt])
         avg = 0

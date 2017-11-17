@@ -2,6 +2,16 @@ import os
 
 class init_value():
     def init(self):
+        self.debug = False
+
+        self.image_size = 160
+        self.batch_size = 1000
+        self.minsize = 20  # minimum size of face
+        self.threshold = [0.6, 0.7, 0.7]  # three steps's threshold
+        self.factor = 0.709  # scale factor
+        self.frame_interval = 3
+        self.out_image_size = 182
+
         self.project_path = os.path.dirname(os.path.abspath(__file__))+'/'
         self.train_data_path = self.project_path+'data/train_data/'
         self.eval_data_path = self.project_path+'data/eval_data/'
@@ -21,7 +31,6 @@ class init_value():
         self.model_name_detect = self.project_path + 'pre_model/my_classifier_detect.pkl'
         self.model_name_rotate = self.project_path + 'pre_model/my_classifier_rotate.pkl'
         self.model_name_rotdet = self.project_path + 'pre_model/my_classifier_rotdet.pkl'
-
 
         self.dets_path = self.project_path + 'dets/'
 
@@ -44,7 +53,7 @@ class init_value():
                 self.test_data_files.append(evalfile_path + '/' + evalfile)
                 break
 
-        self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
+        # self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
 
         self.bounding_boxes = 'bounding_boxes'
         self.pnet = None
@@ -55,11 +64,5 @@ class init_value():
         self.embedding_size = None
         self.phase_train_placeholder = None
 
-        self.image_size = 160
-        self.batch_size = 1000
-        self.minsize = 20  # minimum size of face
-        self.threshold = [0.6, 0.7, 0.7]  # three steps's threshold
-        self.factor = 0.709  # scale factor
-        self.frame_interval = 3
-        self.out_image_size = 182
+
 
