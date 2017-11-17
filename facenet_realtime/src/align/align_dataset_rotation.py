@@ -18,10 +18,12 @@ import wget
 import dlib, bz2, cv2
 
 class AlignDatasetRotation():
-    def rotation_dataset(self):
+    def rotation_dataset(self, data_path):
         init_value.init_value.init(self)
+
+        # data_path = self.train_data_path
+
         predictor, detector = self.face_rotation_predictor_download()
-        data_path = self.eval_data_path
         save_path = self.detect_data_path[1]
 
         dir_list = os.listdir(data_path)

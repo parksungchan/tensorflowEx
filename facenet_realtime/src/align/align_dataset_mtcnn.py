@@ -13,9 +13,12 @@ from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 
 class AlignDatasetMtcnn():
-    def align_dataset(self):
+    def align_dataset(self, data_path):
         init_value.init_value.init(self)
-        dataset = facenet.get_dataset(self.train_data_path)
+
+        # data_path = self.train_data_path
+
+        dataset = facenet.get_dataset(data_path)
         output_dir = os.path.expanduser(self.detect_data_path[0])
 
         with tf.Graph().as_default():
