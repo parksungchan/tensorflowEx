@@ -8,13 +8,17 @@ class Facenet_run():
         init_value.init_value.init(self)
 
         # # object detect
-        AlignDatasetMtcnn().align_dataset(self.train_data_path)
+        AlignDatasetMtcnn().align_dataset(self.train_data_path, self.detect_data_path)
 
-        # object rotation
-        AlignDatasetRotation().rotation_dataset(self.train_data_path)
+        # # object rotate detect
+        AlignDatasetRotation().rotation_dataset(self.train_data_path, self.rotate_data_path)
+        AlignDatasetMtcnn().align_dataset(self.rotate_data_path, self.rotdet_data_path)
 
         # classifier Train
-        ClassifierImage().classifier_dataset()
+        ClassifierImage().classifier_dataset(self.detect_data_path, self.model_name_detect)
+
+        # classifier Train
+        ClassifierImage().classifier_dataset(self.rotdet_data_path, self.model_name_rotdet)
 
 if __name__ == '__main__':
     Facenet_run().run()

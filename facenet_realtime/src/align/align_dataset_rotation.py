@@ -18,29 +18,26 @@ import wget
 import dlib, bz2, cv2
 
 class AlignDatasetRotation():
-    def rotation_dataset(self, data_path):
+    def rotation_dataset(self, input_path, output_path):
         init_value.init_value.init(self)
 
-        # data_path = self.train_data_path
-
         predictor, detector = self.face_rotation_predictor_download()
-        save_path = self.detect_data_path[1]
 
-        dir_list = os.listdir(data_path)
+        dir_list = os.listdir(input_path)
         for dirList in dir_list:
             if dirList.find(self.bounding_boxes) == 0:
                 continue
-            file_list = os.listdir(data_path+dirList)
-            if not os.path.exists(save_path + dirList):
-                os.makedirs(save_path + dirList)
+            file_list = os.listdir(input_path+dirList)
+            if not os.path.exists(output_path + dirList):
+                os.makedirs(output_path + dirList)
 
             for img in file_list:
-                image = cv2.imread(data_path+'/'+dirList+'/'+img)
+                image = cv2.imread(input_path+'/'+dirList+'/'+img)
                 try:
                     image = self.face_lotation(image, predictor, detector)
                 except:
-                    print('Lotation Error:'+data_path+'/'+dirList+'/'+img)
-                cv2.imwrite(save_path + dirList + '/' + img, image)
+                    print('Lotation Error:'+input_path+'/'+dirList+'/'+img)
+                cv2.imwrite(output_path + dirList + '/' + img, image)
 
     def face_lotation(self, image, predictor, detector):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -55,6 +52,7 @@ class AlignDatasetRotation():
         return faceAligned
 
     def face_rotation_predictor_download(self):
+        init_value.init_value.init(self)
         down_pred_url = self.down_land68_url
         bz_pred_file = self.land68_file
         down_pred_path = self.model_path

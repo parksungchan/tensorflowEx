@@ -16,14 +16,22 @@ from scipy import misc
 import facenet_realtime.src.align.detect_face as detect_face
 from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
+from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotation
 
 class DataNodeImage():
-    def realtime_run(self, evalType=None):
+    def realtime(self):
         init_value.init_value.init(self)
+        # self.realtime_run(self.model_name_detect, 'Y', 'detect')
+        # self.realtime_run(self.model_name_rotdet, 'Y', 'rotdet')
+
+        self.realtime_run(self.model_name_rotdet, 'N', 'rotdet')
+
+    def realtime_run(self, modelName, evalType=None, detectType=None):
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
+                self.detectType = detectType
                 self.pnet, self.rnet, self.onet = detect_face.create_mtcnn(sess, self.dets_path)
 
                 # get Model Path
@@ -35,36 +43,43 @@ class DataNodeImage():
                 self.embedding_size = self.embeddings.get_shape()[1]
                 self.phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
-                for modelName in self.model_name:
-                    classifier_filename = modelName
-                    classifier_filename_exp = os.path.expanduser(classifier_filename)
-                    with open(classifier_filename_exp, 'rb') as infile:
-                        (model, class_names) = pickle.load(infile)
-                        print('load classifier file-> %s' % classifier_filename_exp)
+                classifier_filename = modelName
+                classifier_filename_exp = os.path.expanduser(classifier_filename)
+                with open(classifier_filename_exp, 'rb') as infile:
+                    (model, class_names) = pickle.load(infile)
+                    print('load classifier file-> %s' % classifier_filename_exp)
 
-                    HumanNamesSort = sorted(os.listdir(self.train_data_path))
-                    HumanNames = []
-                    for h in HumanNamesSort:
-                        h_split = h.split('_')
-                        HumanNames.append(h_split[1])
+                HumanNamesSort = sorted(os.listdir(self.train_data_path))
+                HumanNames = []
+                for h in HumanNamesSort:
+                    h_split = h.split('_')
+                    HumanNames.append(h_split[1])
 
-                    if evalType == "Y":
-                        self.facenet_eval(sess, model, HumanNamesSort)
-                    else:
-                        self.facenet_capture(sess, model, HumanNames)
+                if evalType == "Y":
+                    self.facenet_eval(sess, model, HumanNamesSort)
+                else:
+                    self.facenet_capture(sess, model, HumanNames)
 
     def facenet_capture(self, sess, model, HumanNames):
         type = 'R'
         testCnt = 0
+        predictor, detector = AlignDatasetRotation().face_rotation_predictor_download()
+
         while True:
             video_capture = cv2.VideoCapture(0)
             ret, frame = video_capture.read()
             if frame == None:
                 if testCnt < len(self.test_data_files):
-                    frame = misc.imread(self.test_data_files[testCnt])
+                    frame = cv2.imread(self.test_data_files[testCnt])
                     testCnt += 1
                 else:
                     break
+
+            if self.detectType == 'rotdet':
+                try:
+                    frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
+                except:
+                    print('Lotation Run Error:')
 
             frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
@@ -120,15 +135,14 @@ class DataNodeImage():
                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 0, 255), thickness=1, lineType=3)
 
-
-
                     # plt.imshow(frame)
                     # plt.show()
 
-                    cv2.imshow('Video', frame)
+                    # cv2.imshow('Video', frame)
                     #
                     # if cv2.waitKey(1) & 0xFF == ord('q'):
                     #     break
+                    print(result_names)
             else:
                 print('Unable to align')
 
@@ -147,6 +161,7 @@ class DataNodeImage():
         total_false = 0
         result = []
 
+        predictor, detector = AlignDatasetRotation().face_rotation_predictor_download()
         evaldirlist = sorted(os.listdir(self.eval_data_path))
         for evaldir in evaldirlist:
             evalfile_path = self.eval_data_path+evaldir
@@ -155,7 +170,13 @@ class DataNodeImage():
             true_cnt = 0
             false_cnt = 0
             for evalfile in evalfile_list:
-                frame = misc.imread(evalfile_path+'/'+evalfile)
+                frame = cv2.imread(evalfile_path+'/'+evalfile)
+
+                if self.detectType == 'rotdet':
+                    try:
+                        frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
+                    except:
+                        print('Lotation Run Error:'+evalfile_path+'/'+evalfile)
 
                 frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
@@ -235,7 +256,7 @@ class DataNodeImage():
 
 if __name__ == '__main__':
     # object detect
-    DataNodeImage().realtime_run('N')
+    DataNodeImage().realtime()
 
 # [print(f.name) for f in matplotlib.font_manager.fontManager.ttflist if 'Nanum' in f.name]
 #

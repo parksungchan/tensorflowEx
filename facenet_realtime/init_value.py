@@ -6,26 +6,31 @@ class init_value():
         self.train_data_path = self.project_path+'data/train_data/'
         self.eval_data_path = self.project_path+'data/eval_data/'
 
-        self.detect_data_path = [self.project_path+'data/data_detect/'
-                                 ,self.project_path+'data/data_rotation/'
-                                 ]
-        for data_path in self.detect_data_path:
-            if not os.path.exists(data_path):
-                os.makedirs(data_path)
+        self.detect_data_path = self.project_path+'data/data_detect/'
+        self.rotate_data_path = self.project_path+'data/data_rotate/'
+        self.rotdet_data_path = self.project_path+'data/data_rotdet/'
+
+        if not os.path.exists(self.detect_data_path):
+            os.makedirs(self.detect_data_path)
+        if not os.path.exists(self.rotate_data_path):
+            os.makedirs(self.rotate_data_path)
+        if not os.path.exists(self.rotdet_data_path):
+            os.makedirs(self.rotdet_data_path)
 
         self.model_path = self.project_path + 'pre_model/'
-        self.model_name = [self.project_path + 'pre_model/my_classifier.pkl'
-                           # ,self.project_path + 'pre_model/my_classifier_rotation.pkl'
-                           ]
+        self.model_name_detect = self.project_path + 'pre_model/my_classifier_detect.pkl'
+        self.model_name_rotate = self.project_path + 'pre_model/my_classifier_rotate.pkl'
+        self.model_name_rotdet = self.project_path + 'pre_model/my_classifier_rotdet.pkl'
+
 
         self.dets_path = self.project_path + 'dets/'
 
-        # facenet object detection
+        # facenet object detect
         self.pre_model_url = 'https://drive.google.com/uc?id=0B5MzpY9kBtDVZ2RpVDYwWmxoSUk&export=download'
         self.pre_model_zip = self.project_path + 'pre_model/20170512-110547.zip'
         self.pre_model_name = self.project_path + 'pre_model/20170512-110547/20170512-110547.pb'
 
-        # drip object rotation
+        # drip object rotate
         self.down_land68_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
         self.land68_file = 'shape_predictor_68_face_landmarks.dat.bz2'
 

@@ -13,13 +13,11 @@ from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 
 class AlignDatasetMtcnn():
-    def align_dataset(self, data_path):
+    def align_dataset(self, input_path, output_path):
         init_value.init_value.init(self)
 
-        # data_path = self.train_data_path
-
-        dataset = facenet.get_dataset(data_path)
-        output_dir = os.path.expanduser(self.detect_data_path[0])
+        dataset = facenet.get_dataset(input_path)
+        output_dir = os.path.expanduser(output_path)
 
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
