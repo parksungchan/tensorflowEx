@@ -29,15 +29,16 @@ class AlignDatasetRotation():
             if dirList.find(self.bounding_boxes) == 0:
                 continue
             file_list = os.listdir(data_path+dirList)
+            if not os.path.exists(save_path + dirList):
+                os.makedirs(save_path + dirList)
+
             for img in file_list:
                 image = cv2.imread(data_path+'/'+dirList+'/'+img)
                 try:
                     image = self.face_lotation(image, predictor, detector)
-                    if not os.path.exists(save_path+dirList):
-                        os.makedirs(save_path+dirList)
-                    cv2.imwrite(save_path+dirList+'/'+img, image)
                 except:
                     print('Lotation Error:'+data_path+'/'+dirList+'/'+img)
+                cv2.imwrite(save_path + dirList + '/' + img, image)
 
     def face_lotation(self, image, predictor, detector):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
