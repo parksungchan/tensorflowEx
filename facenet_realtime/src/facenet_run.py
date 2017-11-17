@@ -21,8 +21,8 @@ from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotati
 class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
-        # self.realtime_run(self.model_name_detect, 'Y', 'detect')
-        # self.realtime_run(self.model_name_rotdet, 'Y', 'rotdet')
+        self.realtime_run(self.model_name_detect, 'Y', 'detect')
+        self.realtime_run(self.model_name_rotdet, 'Y', 'rotdet')
 
         self.realtime_run(self.model_name_rotdet, 'N', 'rotdet')
 
