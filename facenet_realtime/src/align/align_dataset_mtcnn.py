@@ -12,12 +12,11 @@ import facenet_realtime.src.align.detect_face as detect_face
 from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 
-
-class AlignDataset():
+class AlignDatasetMtcnn():
     def align_dataset(self):
         init_value.init_value.init(self)
         dataset = facenet.get_dataset(self.train_data_path)
-        output_dir = os.path.expanduser(self.detect_data_path)
+        output_dir = os.path.expanduser(self.detect_data_path[0])
 
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
@@ -27,7 +26,7 @@ class AlignDataset():
 
         # Add a random key to the filename to allow alignment using multiple processes
         random_key = np.random.randint(0, high=99999)
-        bounding_boxes_filename = os.path.join(output_dir, 'bounding_boxes_%05d.txt' % random_key)
+        bounding_boxes_filename = os.path.join(output_dir, self.bounding_boxes+'_%05d.txt' % random_key)
 
         with open(bounding_boxes_filename, "w") as text_file:
             nrof_images_total = 0
@@ -100,7 +99,4 @@ class AlignDataset():
 
         print('Total number of images: %d' % nrof_images_total)
         print('Number of successfully aligned images: %d' % nrof_successfully_aligned)
-
-
-
 

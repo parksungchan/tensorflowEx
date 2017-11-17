@@ -39,8 +39,10 @@ from tensorflow.python.training import training
 import random
 import re
 from tensorflow.python.platform import gfile
-import zipfile
 import requests
+import zipfile
+from facenet_realtime import init_value
+
 
 def triplet_loss(anchor, positive, negative, alpha):
     """Calculate the triplet loss according to the FaceNet paper
@@ -544,24 +546,6 @@ def write_arguments_to_file(args, filename):
         for key, value in vars(args).iteritems():
             f.write('%s: %s\n' % (key, str(value)))
 
-def get_pre_model_path(modeldir):
-    model_name = modeldir + '20170512-110547/20170512-110547.pb'
-    model_zip  = modeldir + '20170512-110547.zip'
-    model_url  = 'https://drive.google.com/uc?id=0B5MzpY9kBtDVZ2RpVDYwWmxoSUk&export=download'
-
-    if os.path.isfile(model_zip) == False:
-        try:
-            download_file_from_google_drive(model_url, model_zip)
-        except:
-            print("Error : facenet model down.")
-
-    if os.path.isfile(model_name) == False:
-        fantasy_zip = zipfile.ZipFile(model_zip)
-        fantasy_zip.extractall(modeldir)
-        fantasy_zip.close()
-
-    return model_name
-
 def get_confirm_token(response):
     for key, value in response.cookies.items():
         if key.startswith('download_warning'):
@@ -588,3 +572,18 @@ def download_file_from_google_drive(URL, destination):
         response = session.get(URL, params=params, stream=True)
 
     save_response_content(response, destination)
+
+def get_pre_model_path(pre_model_url, pre_model_zip, pre_model_path, pre_model_name):
+    if os.path.isfile(pre_model_zip) == False:
+        try:
+            download_file_from_google_drive(pre_model_url, pre_model_zip)
+        except:
+            print("Error : facenet model down.")
+
+    if os.path.isfile(pre_model_name) == False:
+        fantasy_zip = zipfile.ZipFile(pre_model_zip)
+        fantasy_zip.extractall(pre_model_path)
+        fantasy_zip.close()
+
+
+

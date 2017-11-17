@@ -5,17 +5,50 @@ class init_value():
         self.project_path = os.path.dirname(os.path.abspath(__file__))+'/'
         self.train_data_path = self.project_path+'data/train_data/'
         self.eval_data_path = self.project_path+'data/eval_data/'
-        self.detect_data_path = self.project_path+'data/detect_data/'
-        if not os.path.exists(self.detect_data_path):
-            os.makedirs(self.detect_data_path)
+
+        self.detect_data_path = [self.project_path+'data/data_detect/'
+                                 ,self.project_path+'data/data_rotation/'
+                                 ]
+        for data_path in self.detect_data_path:
+            if not os.path.exists(data_path):
+                os.makedirs(data_path)
 
         self.model_path = self.project_path + 'pre_model/'
-        self.dets_path = self.model_path + 'dets/'
+        self.model_name = [self.project_path + 'pre_model/my_classifier.pkl'
+                           # ,self.project_path + 'pre_model/my_classifier_rotation.pkl'
+                           ]
 
-        self.test_data_files = [self.eval_data_path+'L00002_아무개2/000618.jpg'
-                                # ,self.eval_data_path + 'L00004_아무개4/001536.jpg'
-                                ]
+        self.dets_path = self.project_path + 'dets/'
+
+        # facenet object detection
+        self.pre_model_url = 'https://drive.google.com/uc?id=0B5MzpY9kBtDVZ2RpVDYwWmxoSUk&export=download'
+        self.pre_model_zip = self.project_path + 'pre_model/20170512-110547.zip'
+        self.pre_model_name = self.project_path + 'pre_model/20170512-110547/20170512-110547.pb'
+
+        # drip object rotation
+        self.down_land68_url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
+        self.land68_file = 'shape_predictor_68_face_landmarks.dat.bz2'
+
+        self.test_data_files = []
+        evaldirlist = sorted(os.listdir(self.eval_data_path))
+        for evaldir in evaldirlist:
+            evalfile_path = self.eval_data_path + '/' + evaldir
+            evalfile_list = os.listdir(evalfile_path)
+
+            for evalfile in evalfile_list:
+                self.test_data_files.append(evalfile_path + '/' + evalfile)
+                break
+
         self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
+
+        self.bounding_boxes = 'bounding_boxes'
+        self.pnet = None
+        self.rnet = None
+        self.onet = None
+        self.images_placeholder = None
+        self.embeddings = None
+        self.embedding_size = None
+        self.phase_train_placeholder = None
 
         self.image_size = 160
         self.batch_size = 1000
@@ -25,10 +58,3 @@ class init_value():
         self.frame_interval = 3
         self.out_image_size = 182
 
-        self.pnet = None
-        self.rnet = None
-        self.onet = None
-        self.images_placeholder = None
-        self.embeddings = None
-        self.embedding_size = None
-        self.phase_train_placeholder = None

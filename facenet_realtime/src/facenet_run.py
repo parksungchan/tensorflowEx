@@ -4,11 +4,11 @@ from __future__ import print_function
 
 import os
 import pickle
-import time
 
 import cv2
 from matplotlib import font_manager, rc
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import tensorflow as tf
 from scipy import misc
@@ -27,31 +27,31 @@ class DataNodeImage():
                 self.pnet, self.rnet, self.onet = detect_face.create_mtcnn(sess, self.dets_path)
 
                 # get Model Path
-                model_name = facenet.get_pre_model_path(self.model_path)
-                facenet.load_model(model_name)
+                facenet.get_pre_model_path(self.pre_model_url, self.pre_model_zip, self.model_path, self.pre_model_name)
+                facenet.load_model(self.pre_model_name)
 
                 self.images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
                 self.embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
                 self.embedding_size = self.embeddings.get_shape()[1]
                 self.phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
+                for modelName in self.model_name:
+                    classifier_filename = modelName
+                    classifier_filename_exp = os.path.expanduser(classifier_filename)
+                    with open(classifier_filename_exp, 'rb') as infile:
+                        (model, class_names) = pickle.load(infile)
+                        print('load classifier file-> %s' % classifier_filename_exp)
 
-                classifier_filename = self.model_path+'my_classifier.pkl'
-                classifier_filename_exp = os.path.expanduser(classifier_filename)
-                with open(classifier_filename_exp, 'rb') as infile:
-                    (model, class_names) = pickle.load(infile)
-                    print('load classifier file-> %s' % classifier_filename_exp)
+                    HumanNamesSort = sorted(os.listdir(self.train_data_path))
+                    HumanNames = []
+                    for h in HumanNamesSort:
+                        h_split = h.split('_')
+                        HumanNames.append(h_split[1])
 
-                HumanNamesSort = sorted(os.listdir(self.train_data_path))
-                HumanNames = []
-                for h in HumanNamesSort:
-                    h_split = h.split('_')
-                    HumanNames.append(h_split[1])
-
-                if evalType == "Y":
-                    self.facenet_eval(sess, model, HumanNamesSort)
-                else:
-                    self.facenet_capture(sess, model, HumanNames)
+                    if evalType == "Y":
+                        self.facenet_eval(sess, model, HumanNamesSort)
+                    else:
+                        self.facenet_capture(sess, model, HumanNames)
 
     def facenet_capture(self, sess, model, HumanNames):
         type = 'R'
@@ -114,35 +114,26 @@ class DataNodeImage():
 
                     # plot result idx under box
                     text_x = bb[i][0]
-                    text_y = bb[i][2] - 20
-
-
-
-
-                    self.font_location = self.project_path + 'font/ttf/NanumGothicBold.ttf'
-                    font_name = font_manager.FontProperties(fname=self.font_location).get_name()
-                    rc('font', family=font_name)
-
-                    prop = font_manager.FontProperties(fname=self.font_location, size=18)
-
-
+                    text_y = bb[i][1]
 
                     result_names = HumanNames[best_class_indices[0]]
                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                                1, (0, 0, 255), thickness=1, lineType=1)
+                                1, (0, 0, 255), thickness=1, lineType=3)
 
 
 
                     # plt.imshow(frame)
                     # plt.show()
+
+                    cv2.imshow('Video', frame)
+                    #
+                    # if cv2.waitKey(1) & 0xFF == ord('q'):
+                    #     break
             else:
                 print('Unable to align')
 
-            cv2.imshow('Video', frame)
-        #
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         break
-        #
+
+
         # video_capture.release()
         # cv2.destroyAllWindows()
 
@@ -155,10 +146,10 @@ class DataNodeImage():
         total_true = 0
         total_false = 0
         result = []
-        resultTotal = []
+
         evaldirlist = sorted(os.listdir(self.eval_data_path))
         for evaldir in evaldirlist:
-            evalfile_path = self.eval_data_path+'/'+evaldir
+            evalfile_path = self.eval_data_path+evaldir
             evalfile_list = os.listdir(evalfile_path)
             total_class += 1
             true_cnt = 0
@@ -212,7 +203,7 @@ class DataNodeImage():
                         true_cnt += 1
                         total_true += 1
                     else :
-                        print('File:'+evalfile_path+'/'+evalfile+' False : True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]])
+                        print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]]+' ]')
                         false_cnt += 1
                         total_false += 1
                 else:
@@ -226,14 +217,18 @@ class DataNodeImage():
 
         print('==================================================================')
         print(resultTotal[0]
-              + ',Class Cnt:' + str(resultTotal[1])
+              + ' Class :' + str(resultTotal[1])
+              + ', Total Cnt:' + str(resultTotal[2]+resultTotal[3])
               + ', True Cnt:'+str(resultTotal[2])
               + ', False Cnt:' + str(resultTotal[3])
               + ', Accracy:' + str(resultTotal[4]) + '%'
               )
         print('------------------------------------------------------------------')
         for i in result:
-            print(i)
+            avg = 0
+            if i[1] > 0:
+                avg = round((i[1] / (i[1] + i[2])) * 100, 2)
+            print(i[0]+' [ Total Cnt:'+str(i[3])+', True Cnt:'+str(i[1])+', False Cnt:'+str(i[2])+' Accracy:'+str(avg)+'% ]')
         print('==================================================================')
 
 
@@ -248,3 +243,10 @@ if __name__ == '__main__':
 # matplotlib.rc('font', family=font_name)
 # matplotlib.pyplot.imshow(frame)
 # matplotlib.pyplot.show()
+
+
+# self.font_location = self.project_path + 'font/ttf/NanumGothicBold.ttf'
+# font_name = font_manager.FontProperties(fname=self.font_location).get_name()
+# rc('font', family=font_name)
+#
+# prop = font_manager.FontProperties(fname=self.font_location, size=18)
