@@ -6,9 +6,8 @@ import os
 import pickle
 
 import cv2
-from matplotlib import font_manager, rc
-import matplotlib.pyplot as plt
-import matplotlib
+# from matplotlib import font_manager, rc
+
 import numpy as np
 import tensorflow as tf
 from scipy import misc
@@ -21,17 +20,33 @@ from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotati
 class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
-        self.realtime_run(self.model_name_detect, 'Y', 'detect')
-        self.realtime_run(self.model_name_rotdet, 'Y', 'rotdet')
+        # self.realtime_run(self.model_name_detect, 'detect', 'eval')
+        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
 
-        self.realtime_run(self.model_name_rotdet, 'N', 'rotdet')
+        self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
+        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'real')
 
-    def realtime_run(self, modelName, evalType=None, detectType=None):
+    def realtime_run(self, modelName, detectType=None, evalType=None):
+        '''
+        :param modelName: 사용할 자신의 Classifier Model 
+                           self.model_name_detect : detect만 사용한 모델이다.
+                           self.model_name_rotdet : Rotate->Detect를 사용한 모델이다.
+        :param detectType: 예측할 영상의 이미지 전처리 선택
+                           detect : 예측 영상의 얼굴 Detect만 한다.
+                           rotdet : 예측 영상의 얼굴 Rotate->Detect를 한다.
+        :param evalType: 출력을 어떻게 지정할 지 선택을 해준다.
+                         eval : eval_data에 있는 전체 데이터를 가져와 평가를 수행한다.
+                         test : eval_data에 있는 폴더별 첫번째 데이터만 예측하여 보여준다. 
+                         real : 실제 영상을 예측하여 보여준다.
+        :return: 
+        '''
+        self.detectType = detectType
+        self.evalType = evalType
+
         with tf.Graph().as_default():
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
             sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
-                self.detectType = detectType
                 self.pnet, self.rnet, self.onet = detect_face.create_mtcnn(sess, self.dets_path)
 
                 # get Model Path
@@ -55,38 +70,49 @@ class DataNodeImage():
                     h_split = h.split('_')
                     HumanNames.append(h_split[1])
 
-                if evalType == "Y":
+                if evalType == "eval":
                     self.facenet_eval(sess, model, HumanNamesSort)
                 else:
                     self.facenet_capture(sess, model, HumanNames)
 
     def facenet_capture(self, sess, model, HumanNames):
-        type = 'R'
         testCnt = 0
         predictor, detector = AlignDatasetRotation().face_rotation_predictor_download()
 
         while True:
             video_capture = cv2.VideoCapture(0)
             ret, frame = video_capture.read()
-            if frame == None:
+            if self.evalType == 'test':
                 if testCnt < len(self.test_data_files):
                     frame = cv2.imread(self.test_data_files[testCnt])
                     testCnt += 1
                 else:
                     break
 
+            image = frame
+
             if self.detectType == 'rotdet':
                 try:
                     frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
+                    image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
+                    if image.ndim == 2:
+                        image = facenet.to_rgb(image)
+                    image = image[:, :, 0:3]
+                    bounding_boxes_image, _ = detect_face.detect_face(image, self.minsize, self.pnet, self.rnet, self.onet,
+                                                                self.threshold, self.factor)
                 except:
                     if self.debug == True:
                         print('Lotation Run Error:')
+
+            if frame is None:
+                continue
 
             frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
             if frame.ndim == 2:
                 frame = facenet.to_rgb(frame)
             frame = frame[:, :, 0:3]
+
             bounding_boxes, _ = detect_face.detect_face(frame, self.minsize, self.pnet, self.rnet, self.onet,
                                                         self.threshold, self.factor)
             nrof_faces = bounding_boxes.shape[0]
@@ -137,8 +163,9 @@ class DataNodeImage():
                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 0, 255), thickness=1, lineType=3)
 
-                    # plt.imshow(frame)
-                    # plt.show()
+                    import matplotlib.pyplot as plt
+                    plt.imshow(frame)
+                    plt.show()
 
                     # cv2.imshow('Video', frame)
                     #
@@ -187,6 +214,7 @@ class DataNodeImage():
                 if frame.ndim == 2:
                     frame = facenet.to_rgb(frame)
                 frame = frame[:, :, 0:3]
+
                 bounding_boxes, _ = detect_face.detect_face(frame, self.minsize, self.pnet, self.rnet, self.onet, self.threshold, self.factor)
                 nrof_faces = bounding_boxes.shape[0]
 
@@ -257,6 +285,7 @@ class DataNodeImage():
                 avg = round((i[1] / (i[1] + i[2])) * 100, 2)
             print(i[0]+' [ Total Cnt:'+str(i[3])+', True Cnt:'+str(i[1])+', False Cnt:'+str(i[2])+' Accracy:'+str(avg)+'% ]')
         print('==================================================================')
+        print('')
 
 
 
