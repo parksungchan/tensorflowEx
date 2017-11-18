@@ -94,12 +94,6 @@ class DataNodeImage():
             if self.detectType == 'rotdet':
                 try:
                     frame = AlignDatasetRotation.face_lotation(self, frame, predictor, detector)
-                    image = cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
-                    if image.ndim == 2:
-                        image = facenet.to_rgb(image)
-                    image = image[:, :, 0:3]
-                    bounding_boxes_image, _ = detect_face.detect_face(image, self.minsize, self.pnet, self.rnet, self.onet,
-                                                                self.threshold, self.factor)
                 except:
                     if self.debug == True:
                         print('Lotation Run Error:')
@@ -119,13 +113,11 @@ class DataNodeImage():
 
             if nrof_faces > 0:
                 det = bounding_boxes[:, 0:4]
-                img_size = np.asarray(frame.shape)[0:2]
-
                 cropped = []
                 scaled = []
                 scaled_reshape = []
-                bb = np.zeros((nrof_faces, 4), dtype=np.int32)
 
+                bb = np.zeros((nrof_faces, 4), dtype=np.int32)
                 for i in range(nrof_faces):
                     emb_array = np.zeros((1, self.embedding_size))
 
@@ -152,9 +144,13 @@ class DataNodeImage():
                     emb_array[0, :] = sess.run(self.embeddings, feed_dict=feed_dict)
                     predictions = model.predict_proba(emb_array)
                     best_class_indices = np.argmax(predictions, axis=1)
-                    best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-                    cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (255, 0, 0), 1)  # boxing face
 
+                    box_color = (255, 0, 0)
+                    if self.detectType == 'rotdet':
+                        frame, bb[i][0], bb[i][1] = self.pre_rectangle(image, box_color)
+                        # cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)
+                    else:
+                        cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)  # boxing faces
                     # plot result idx under box
                     text_x = bb[i][0]
                     text_y = bb[i][1]
@@ -163,20 +159,42 @@ class DataNodeImage():
                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 0, 255), thickness=1, lineType=3)
 
-                    import matplotlib.pyplot as plt
-                    plt.imshow(frame)
-                    plt.show()
+                    if self.evalType == 'test':
+                        import matplotlib.pyplot as plt
+                        plt.imshow(frame)
+                        plt.show()
+                    else:
+                        cv2.imshow('Video', frame)
 
-                    # cv2.imshow('Video', frame)
-                    #
-                    # if cv2.waitKey(1) & 0xFF == ord('q'):
-                    #     break
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
                     print(result_names)
             else:
                 if self.debug == True:
                     print('Unable to align')
 
+    def pre_rectangle(self, frame, box_color):
+        frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
+        if frame.ndim == 2:
+            frame = facenet.to_rgb(frame)
+        frame = frame[:, :, 0:3]
+
+        bounding_boxes, _ = detect_face.detect_face(frame, self.minsize, self.pnet, self.rnet, self.onet,
+                                                    self.threshold, self.factor)
+        nrof_faces = bounding_boxes.shape[0]
+
+        if nrof_faces > 0:
+            det = bounding_boxes[:, 0:4]
+            bb = np.zeros((nrof_faces, 4), dtype=np.int32)
+            for i in range(nrof_faces):
+                bb[i][0] = det[i][0]
+                bb[i][1] = det[i][1]
+                bb[i][2] = det[i][2]
+                bb[i][3] = det[i][3]
+                cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)
+
+        return frame, bb[i][0], bb[i][1]
 
         # video_capture.release()
         # cv2.destroyAllWindows()
@@ -209,6 +227,9 @@ class DataNodeImage():
                         if self.debug == True:
                             print('Lotation Run Error:'+evalfile_path+'/'+evalfile)
 
+                if frame is None:
+                    continue
+
                 frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
                 if frame.ndim == 2:
@@ -237,7 +258,7 @@ class DataNodeImage():
 
                         # inner exception
                         if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
-                            # print('face is inner of range!')
+                            print('face is inner of range!')
                             continue
 
                         cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
