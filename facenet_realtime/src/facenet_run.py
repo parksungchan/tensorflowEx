@@ -23,7 +23,9 @@ class DataNodeImage():
         # self.realtime_run(self.model_name_detect, 'detect', 'eval')
         # self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
 
-        self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
+        self.realtime_run(self.model_name_detect, 'detect', 'test')
+
+        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
         # self.realtime_run(self.model_name_rotdet, 'rotdet', 'real')
 
     def realtime_run(self, modelName, detectType=None, evalType=None):
@@ -84,7 +86,7 @@ class DataNodeImage():
             ret, frame = video_capture.read()
             if self.evalType == 'test':
                 if testCnt < len(self.test_data_files):
-                    frame = cv2.imread(self.test_data_files[testCnt])
+                    frame = misc.imread(self.test_data_files[testCnt])
                     testCnt += 1
                 else:
                     break
