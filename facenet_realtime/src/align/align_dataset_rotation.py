@@ -13,7 +13,7 @@ from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 from imutils.face_utils import FaceAligner
 from imutils.face_utils import rect_to_bb
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import wget
 import dlib, bz2, cv2
 
