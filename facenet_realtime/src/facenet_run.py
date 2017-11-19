@@ -23,9 +23,9 @@ class DataNodeImage():
         # self.realtime_run(self.model_name_detect, 'detect', 'eval')
         # self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
 
-        self.realtime_run(self.model_name_detect, 'detect', 'test')
+        # self.realtime_run(self.model_name_detect, 'detect', 'test')
 
-        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
+        self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
         # self.realtime_run(self.model_name_rotdet, 'rotdet', 'real')
 
     def realtime_run(self, modelName, detectType=None, evalType=None):
@@ -120,6 +120,7 @@ class DataNodeImage():
                 scaled_reshape = []
 
                 bb = np.zeros((nrof_faces, 4), dtype=np.int32)
+                viewFlag = 'Y'
                 for i in range(nrof_faces):
                     emb_array = np.zeros((1, self.embedding_size))
 
@@ -132,6 +133,7 @@ class DataNodeImage():
                     if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
                         if self.debug == True:
                             print('face is inner of range!')
+                            viewFlag = 'N'
                         continue
 
                     cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
@@ -161,6 +163,7 @@ class DataNodeImage():
                     cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 0, 255), thickness=1, lineType=3)
 
+                if viewFlag == 'Y':
                     if self.evalType == 'test':
                         import matplotlib.pyplot as plt
                         plt.imshow(frame)
@@ -170,7 +173,7 @@ class DataNodeImage():
 
                         if cv2.waitKey(1) & 0xFF == ord('q'):
                             break
-                    print(result_names)
+                # print(result_names)
             else:
                 if self.debug == True:
                     print('Unable to align')
@@ -275,14 +278,14 @@ class DataNodeImage():
                         predictions = model.predict_proba(emb_array)
                         best_class_indices = np.argmax(predictions, axis=1)
 
-                    if evaldir == HumanNamesSort[best_class_indices[0]]:
-                        true_cnt += 1
-                        total_true += 1
-                    else :
-                        if self.debug == True:
-                            print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]]+' ]')
-                        false_cnt += 1
-                        total_false += 1
+                        if evaldir == HumanNamesSort[best_class_indices[0]]:
+                            true_cnt += 1
+                            total_true += 1
+                        else :
+                            if self.debug == True:
+                                print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+HumanNamesSort[best_class_indices[0]]+' ]')
+                            false_cnt += 1
+                            total_false += 1
                 else:
                     if self.debug == True:
                         print('Unable to align')
