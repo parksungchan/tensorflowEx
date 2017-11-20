@@ -27,25 +27,34 @@ class AlignDatasetRotation():
             for img in file_list:
                 image = [cv2.imread(input_path+'/'+dirList+'/'+img)]
                 try:
-                    image = self.face_lotation(image[0], predictor, detector)
+                    image, _ = self.face_rotation(image[0], predictor, detector)
                     for faArr in image:
                         cv2.imwrite(output_path + dirList + '/d'+str(d_cnt) + '_' + img, faArr)
                         d_cnt += 1
                 except:
                     print('Lotation Error:'+input_path+'/'+dirList+'/'+img)
 
-    def face_lotation(self, image, predictor, detector):
+    def face_rotation(self, image, predictor, detector):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_boundaries = detector(gray, 2)
 
         # loop over the face detections
         fa = FaceAligner(predictor, desiredFaceWidth=512)
         faceAligned = []
+        best_class_boxR = []
         for rect in face_boundaries:
             (x, y, w, h) = rect_to_bb(rect)
             faceAligned.append(fa.align(image, gray, rect))
 
-        return faceAligned
+            for (enum, face) in enumerate(face_boundaries):
+                x = face.left()
+                y = face.top()
+                w = face.right() - x
+                h = face.bottom() - y
+                cv2.rectangle(image, (x, y), (x + w, y + h), self.box_color, 1)
+                best_class_boxR.append([x, y, x + w, y + h])
+
+        return faceAligned, image, best_class_boxR
 
     def face_rotation_predictor_download(self):
         init_value.init_value.init(self)

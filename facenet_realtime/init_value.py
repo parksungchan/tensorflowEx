@@ -12,6 +12,9 @@ class init_value():
         self.frame_interval = 3
         self.out_image_size = 182
 
+        self.text_color = (0, 0, 255)
+        self.box_color =(120, 160, 230)
+
         self.project_path = os.path.dirname(os.path.abspath(__file__))+'/'
         self.train_data_path = self.project_path+'data/train_data/'
         self.eval_data_path = self.project_path+'data/eval_data/'

@@ -20,10 +20,10 @@ from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotati
 class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
-        # self.realtime_run(self.model_name_detect, 'detect', 'eval')
-        # self.realtime_run(self.model_name_rotdet,  'rotdet', 'eval')
+        self.realtime_run(self.model_name_detect, 'detect', 'eval')
+        self.realtime_run(self.model_name_rotdet,  'rotdet', 'eval')
 
-        # self.realtime_run(self.model_name_detect, 'detect', 'test')
+        self.realtime_run(self.model_name_detect, 'detect', 'test')
         self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
 
         # self.realtime_run(self.model_name_detect, 'detect', 'real')
@@ -67,31 +67,33 @@ class DataNodeImage():
                     (self.model, class_names) = pickle.load(infile)
                     print('load classifier file-> %s' % classifier_filename_exp)
                     print('')
-                HumanNamesSort = sorted(os.listdir(self.train_data_path))
-                HumanNames = []
-                for h in HumanNamesSort:
+                # Sort를 해주는 이유는 기존에 Sequnce를 위해 앞에 붙여둔 것을 제거 하기 위함이다.(L00001_)
+                self.HumanNamesSort = sorted(os.listdir(self.train_data_path))
+                self.HumanNames = []
+                for h in self.HumanNamesSort:
                     h_split = h.split('_')
-                    HumanNames.append(h_split[1])
+                    self.HumanNames.append(h_split[1])
 
                 self.predictor, self.detector = AlignDatasetRotation().face_rotation_predictor_download()
 
                 if evalType == "eval":
-                    self.facenet_eval(sess, HumanNamesSort)
+                    self.facenet_eval(sess)
                 else:
-                    self.facenet_capture(sess, HumanNames)
+                    self.facenet_capture(sess)
 
     def getpredict(self, sess, frameArr):
         best_class = []
-
+        best_class_box = []
+        best_class_boxR = []
         if self.detectType == 'rotdet':
             try:
-                frameArr = AlignDatasetRotation.face_lotation(self, frameArr[0], self.predictor, self.detector)
+                frameArr, imageFA, best_class_boxR = AlignDatasetRotation.face_rotation(self, frameArr[0], self.predictor, self.detector)
             except:
-                if self.debug == True:
-                    print('Lotation Run Error')
+                None
 
             if len(frameArr) == 0:
                 best_class.append(-3)
+                best_class_box.append([])
 
         for frame in frameArr:
             if frame is None:
@@ -127,6 +129,7 @@ class DataNodeImage():
                     # inner exception
                     if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
                         best_class.append(-1)
+                        best_class_box.append([])
                         continue
 
                     cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
@@ -143,25 +146,34 @@ class DataNodeImage():
                     predictions = self.model.predict_proba(emb_array)
                     best_class_indices = np.argmax(predictions, axis=1)
                     best_class.append(best_class_indices[0])
+                    best_class_box.append([bb[i][0],bb[i][1],bb[i][2],bb[i][3]])
 
-
-                    # print(best_class_indices[0])
-                    # cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (0,0,255), 1)  # boxing faces
-                    # # plot result idx under box
-                    # text_x = bb[i][0]
-                    # text_y = bb[i][1]
-                    # plt.imshow(frame)
-                    # plt.show()
             else:
                 best_class.append(-2)
 
+        i = 0
+        for bc in best_class:
+            result_names = self.HumanNames[bc]
+
+            if self.detectType == 'detect':
+                cv2.rectangle(frame, (best_class_box[i][0], best_class_box[i][1]), (best_class_box[i][2], best_class_box[i][3]), self.box_color, 1)
+                cv2.putText(frame, result_names, (best_class_box[i][0], best_class_box[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                        1, self.text_color, thickness=1, lineType=1)
+            else:
+                cv2.putText(imageFA, result_names, (best_class_boxR[i][0], best_class_boxR[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                            1, self.text_color, thickness=1, lineType=1)
+                frame = imageFA
+
+            i += 1
+
+        if self.evalType == 'test':
+            plt.imshow(frame)
+            plt.show()
 
         return best_class
 
-    def facenet_capture(self, sess, HumanNames):
+    def facenet_capture(self, sess):
         testCnt = 0
-        predictor, detector = AlignDatasetRotation().face_rotation_predictor_download()
-
         while True:
             video_capture = cv2.VideoCapture(0)
             ret, frame = video_capture.read()
@@ -174,144 +186,9 @@ class DataNodeImage():
 
             frameArr = [frame]
 
-            if self.detectType == 'rotdet':
-                try:
-                    frameArr = AlignDatasetRotation.face_lotation(self, frame[0], predictor, detector)
-                except:
-                    if self.debug == True:
-                        print('Lotation Run Error:')
+            pred = self.getpredict(sess, frameArr)
 
-            for frame in frameArr:
-                if frame is None:
-                    continue
-
-                frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
-
-                if frame.ndim == 2:
-                    frame = facenet.to_rgb(frame)
-                frame = frame[:, :, 0:3]
-
-                bounding_boxes, _ = detect_face.detect_face(frame, self.minsize, self.pnet, self.rnet, self.onet,
-                                                            self.threshold, self.factor)
-                nrof_faces = bounding_boxes.shape[0]
-
-                if nrof_faces > 0:
-                    det = bounding_boxes[:, 0:4]
-                    cropped = []
-                    scaled = []
-                    scaled_reshape = []
-
-                    bb = np.zeros((nrof_faces, 4), dtype=np.int32)
-                    viewFlag = 'Y'
-                    for i in range(nrof_faces):
-                        emb_array = np.zeros((1, self.embedding_size))
-
-                        bb[i][0] = det[i][0]
-                        bb[i][1] = det[i][1]
-                        bb[i][2] = det[i][2]
-                        bb[i][3] = det[i][3]
-
-                        # inner exception
-                        if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
-                            if self.debug == True:
-                                print('face is inner of range!')
-                                viewFlag = 'N'
-                            continue
-
-                        cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
-                        cropped[0] = facenet.flip(cropped[0], False)
-                        scaled.append(
-                            misc.imresize(cropped[0], (self.out_image_size, self.out_image_size), interp='bilinear'))
-                        scaled[0] = cv2.resize(scaled[0], (self.image_size, self.image_size),
-                                               interpolation=cv2.INTER_CUBIC)
-                        scaled[0] = facenet.prewhiten(scaled[0])
-                        scaled_reshape.append(scaled[0].reshape(-1, self.image_size, self.image_size, 3))
-                        feed_dict = {self.images_placeholder: scaled_reshape[0], self.phase_train_placeholder: False}
-                        emb_array[0, :] = sess.run(self.embeddings, feed_dict=feed_dict)
-                        predictions = self.model.predict_proba(emb_array)
-                        best_class_indices = np.argmax(predictions, axis=1)
-
-                        box_color = (255, 0, 0)
-                        if self.detectType == 'rotdet':
-                            None
-                            # frame, bb[i][0], bb[i][1] = self.pre_rectangle(image, box_color)
-                            # cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)
-                        else:
-                            cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)  # boxing faces
-                        # plot result idx under box
-                        text_x = bb[i][0]
-                        text_y = bb[i][1]
-
-                        result_names = HumanNames[best_class_indices[0]]
-                        cv2.putText(frame, result_names, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                                    1, (0, 0, 255), thickness=1, lineType=3)
-                        print(result_names)
-
-                    if viewFlag == 'Y':
-                        if self.evalType == 'test':
-                            import matplotlib.pyplot as plt
-                            plt.imshow(frame)
-                            plt.show()
-                        else:
-                            cv2.imshow('Video', frame)
-
-                            if cv2.waitKey(1) & 0xFF == ord('q'):
-                                break
-                    # print(result_names)
-                else:
-                    if self.debug == True:
-                        print('Unable to align')
-
-    def objdetectland( self, image, detector):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        face_boundaries = detector(gray, 0)
-
-        for (enum, face) in enumerate(face_boundaries):
-            x = face.left()
-            y = face.top()
-            w = face.right() - x
-            h = face.bottom() - y
-            cv2.rectangle(image, (x, y), (x + w, y + h), (120, 160, 230), 2)
-
-            # image = image[face.top():face.bottom(), face.left():face.right()]
-
-        return image
-
-    def pre_rectangle(self, frame, box_color):
-        frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
-
-        if frame.ndim == 2:
-            frame = facenet.to_rgb(frame)
-        frame = frame[:, :, 0:3]
-
-        bounding_boxes, _ = detect_face.detect_face(frame, self.minsize, self.pnet, self.rnet, self.onet,
-                                                    self.threshold, self.factor)
-        nrof_faces = bounding_boxes.shape[0]
-
-        if nrof_faces > 0:
-            det = bounding_boxes[:, 0:4]
-            bb = np.zeros((nrof_faces, 4), dtype=np.int32)
-            for i in range(nrof_faces):
-                bb[i][0] = det[i][0]
-                bb[i][1] = det[i][1]
-                bb[i][2] = det[i][2]
-                bb[i][3] = det[i][3]
-                cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), box_color, 1)
-
-        return frame, bb[i][0], bb[i][1]
-
-        # video_capture.release()
-        # cv2.destroyAllWindows()
-
-    def pred_msg(self, predcnt, evalfile_path, evalfile):
-        lable = 'face is inner of range!'
-        if predcnt == -2:
-            lable = 'Unable to align'
-
-        if self.debug == True:
-            print('[ ' + lable + ' ]' + evalfile_path + '/' + evalfile)
-
-    def facenet_eval(self, sess, HumanNamesSort):
+    def facenet_eval(self, sess):
         if not os.path.exists(self.eval_data_path):
             print('Eval File is not exists')
             return
@@ -343,17 +220,17 @@ class DataNodeImage():
                         none_cnt += 1
                         total_none += 1
                         self.pred_msg(predcnt, evalfile_path, evalfile)
-                    elif evaldir == HumanNamesSort[predcnt]:
+                    elif evaldir == self.HumanNamesSort[predcnt]:
                         true_cnt += 1
                         total_true += 1
                     else :
                         if self.debug == True:
-                            lable = HumanNamesSort[predcnt]
+                            lable = self.HumanNamesSort[predcnt]
                             print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+lable+' ]')
                         false_cnt += 1
                         total_false += 1
-            acc = round((true_cnt / (true_cnt + false_cnt)) * 100, 2)
-            result.append([evaldir, true_cnt+false_cnt, true_cnt, false_cnt, acc, none_cnt])
+
+            result.append([evaldir, true_cnt+false_cnt, true_cnt, false_cnt, 0, none_cnt])
 
         if total_true+total_false > 0:
             acc = round((total_true/(total_true+total_false))*100,2)
@@ -370,18 +247,27 @@ class DataNodeImage():
                   )
 
         if true_cnt + false_cnt > 0:
+            acc = round((true_cnt / (true_cnt + false_cnt)) * 100, 2)
             for i in result:
                 print('------------------------------------------------------------------')
                 print(i[0]+ ' [ Total Cnt:'+str(i[1])
                           + ', True Cnt:'+str(i[2])
                           + ', False Cnt:'+str(i[3])
-                          + ', Accracy:'+str(i[4])+' %'
+                          + ', Accracy:'+str(acc)+' %'
                           + ', None:' + str(i[5])
                           + ' ]')
             print('==================================================================')
             print('')
 
+    def pred_msg(self, predcnt, evalfile_path, evalfile):
+        lable = 'face is inner of range!'
+        if predcnt == -2:
+            lable = 'Unable to align'
+        elif predcnt == -3:
+            lable = 'Lotation Run Error'
 
+        if self.debug == True:
+            print('[ ' + lable + ' ]' + evalfile_path + '/' + evalfile)
 
 if __name__ == '__main__':
     # object detect
