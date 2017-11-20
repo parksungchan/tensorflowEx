@@ -169,6 +169,8 @@ class DataNodeImage():
         if self.evalType == 'test':
             plt.imshow(frame)
             plt.show()
+        else:
+            cv2.imshow('Video', frame)
 
         return best_class
 
@@ -187,6 +189,11 @@ class DataNodeImage():
             frameArr = [frame]
 
             pred = self.getpredict(sess, frameArr)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        video_capture.release()
+        cv2.destroyAllWindows()
 
     def facenet_eval(self, sess):
         if not os.path.exists(self.eval_data_path):
