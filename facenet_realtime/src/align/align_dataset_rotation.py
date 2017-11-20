@@ -3,17 +3,9 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-
-import numpy as np
-import tensorflow as tf
-from scipy import misc
-
-import facenet_realtime.src.align.detect_face as detect_face
 from facenet_realtime import init_value
-from facenet_realtime.src.common import facenet
 from imutils.face_utils import FaceAligner
 from imutils.face_utils import rect_to_bb
-# import matplotlib.pyplot as plt
 import wget
 import dlib, bz2, cv2
 
@@ -31,13 +23,16 @@ class AlignDatasetRotation():
             if not os.path.exists(output_path + dirList):
                 os.makedirs(output_path + dirList)
 
+            d_cnt = 1
             for img in file_list:
-                image = cv2.imread(input_path+'/'+dirList+'/'+img)
+                image = [cv2.imread(input_path+'/'+dirList+'/'+img)]
                 try:
-                    image = self.face_lotation(image, predictor, detector)
+                    image = self.face_lotation(image[0], predictor, detector)
+                    for faArr in image:
+                        cv2.imwrite(output_path + dirList + '/d'+str(d_cnt) + '_' + img, faArr)
+                        d_cnt += 1
                 except:
                     print('Lotation Error:'+input_path+'/'+dirList+'/'+img)
-                cv2.imwrite(output_path + dirList + '/' + img, image)
 
     def face_lotation(self, image, predictor, detector):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -45,9 +40,10 @@ class AlignDatasetRotation():
 
         # loop over the face detections
         fa = FaceAligner(predictor, desiredFaceWidth=512)
+        faceAligned = []
         for rect in face_boundaries:
             (x, y, w, h) = rect_to_bb(rect)
-            faceAligned = fa.align(image, gray, rect)
+            faceAligned.append(fa.align(image, gray, rect))
 
         return faceAligned
 

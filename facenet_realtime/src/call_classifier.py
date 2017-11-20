@@ -10,7 +10,7 @@ class Facenet_run():
         # # object detect
         AlignDatasetMtcnn().align_dataset(self.train_data_path, self.detect_data_path)
 
-        # # object rotate detect
+        # object rotate detect
         AlignDatasetRotation().rotation_dataset(self.train_data_path, self.rotate_data_path)
         AlignDatasetMtcnn().align_dataset(self.rotate_data_path, self.rotdet_data_path)
 
