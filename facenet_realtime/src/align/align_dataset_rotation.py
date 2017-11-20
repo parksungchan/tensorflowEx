@@ -27,7 +27,7 @@ class AlignDatasetRotation():
             for img in file_list:
                 image = [cv2.imread(input_path+'/'+dirList+'/'+img)]
                 try:
-                    image, _ = self.face_rotation(image[0], predictor, detector)
+                    image, _, _ = self.face_rotation(image[0], predictor, detector)
                     for faArr in image:
                         cv2.imwrite(output_path + dirList + '/d'+str(d_cnt) + '_' + img, faArr)
                         d_cnt += 1

@@ -7,7 +7,7 @@ class Facenet_run():
     def run(self):
         init_value.init_value.init(self)
 
-        # # object detect
+        # object detect
         AlignDatasetMtcnn().align_dataset(self.train_data_path, self.detect_data_path)
 
         # object rotate detect
