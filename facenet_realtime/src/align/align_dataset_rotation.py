@@ -50,7 +50,6 @@ class AlignDatasetRotation():
                 y = face.top()
                 w = face.right() - x
                 h = face.bottom() - y
-                cv2.rectangle(image, (x, y), (x + w, y + h), self.box_color, 1)
 
             faceAligned.append(fa.align(image, gray, rect))
             best_class_boxR.append([x, y, x + w, y + h])
