@@ -6,7 +6,6 @@ import os
 import pickle
 
 import cv2
-import matplotlib.pyplot as plt
 
 import numpy as np
 import tensorflow as tf
@@ -187,6 +186,7 @@ class DataNodeImage():
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             elif self.evalType == 'test':
+                import matplotlib.pyplot as plt
                 plt.imshow(frame)
                 plt.show()
 
