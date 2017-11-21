@@ -59,7 +59,7 @@ class init_value():
                 self.test_data_files.append(evalfile_path + '/' + evalfile)
                 break
 
-        # self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
+        self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
 
         self.bounding_boxes = 'bounding_boxes'
         self.pnet = None

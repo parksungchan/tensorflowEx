@@ -15,6 +15,9 @@ import facenet_realtime.src.align.detect_face as detect_face
 from facenet_realtime import init_value
 from facenet_realtime.src.common import facenet
 from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotation
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 
 class DataNodeImage():
     def realtime(self):
@@ -151,14 +154,26 @@ class DataNodeImage():
                 result_names = self.HumanNames[bc]
                 cv2.rectangle(frame, (best_class_box[i][0], best_class_box[i][1]), (best_class_box[i][2], best_class_box[i][3]), self.box_color, 1)
                 if bc >= 0:
-                    cv2.putText(frame, result_names, (best_class_box[i][0], best_class_box[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                            1, self.text_color, thickness=1, lineType=1)
+                    # cv2.putText(frame, result_names, (best_class_box[i][0], best_class_box[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                    #         1, self.text_color, thickness=1, lineType=1)
+                    frame = Image.fromarray(np.uint8(frame))
+                    draw = ImageDraw.Draw(frame)
+                    font = ImageFont.truetype(self.font_location, 16)
+                    draw.text((best_class_box[i][0], best_class_box[i][1]), result_names, self.text_color, font=font)
+                    frame = np.array(frame)
+
         elif self.detectType == 'rotdet' and len(best_class) == len(best_class_boxR):
             for bc in best_class:
                 result_names = self.HumanNames[bc]
                 if bc >= 0:
-                    cv2.putText(imageFA, result_names, (best_class_boxR[i][0], best_class_boxR[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                                1, self.text_color, thickness=1, lineType=1)
+                    # cv2.putText(imageFA, result_names, (best_class_boxR[i][0], best_class_boxR[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                    #             1, self.text_color, thickness=1, lineType=1)
+                    imageFA = Image.fromarray(np.uint8(imageFA))
+                    draw = ImageDraw.Draw(imageFA)
+                    font = ImageFont.truetype(self.font_location, 16)
+                    draw.text((best_class_box[i][0], best_class_box[i][1]), result_names, self.text_color, font=font)
+                    imageFA = np.array(imageFA)
+
                 frame = imageFA
 
             i += 1
