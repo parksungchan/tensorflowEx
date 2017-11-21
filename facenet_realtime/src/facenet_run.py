@@ -20,10 +20,10 @@ from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotati
 class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
-        self.realtime_run(self.model_name_detect, 'detect', 'eval')
+        # self.realtime_run(self.model_name_detect, 'detect', 'eval')
         self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
 
-        self.realtime_run(self.model_name_detect, 'detect', 'test')
+        # self.realtime_run(self.model_name_detect, 'detect', 'test')
         self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
 
         # self.realtime_run(self.model_name_detect, 'detect', 'real')
@@ -164,15 +164,7 @@ class DataNodeImage():
 
             i += 1
 
-        if self.evalType == 'real':
-            cv2.imshow('Video', frame)
-        elif self.evalType == 'test':
-            plt.imshow(frame)
-            plt.show()
-
-        # plt.imshow(imageFA)
-        # plt.show()
-        return best_class
+        return best_class, frame
 
     def facenet_capture(self, sess):
         testCnt = 0
@@ -188,10 +180,15 @@ class DataNodeImage():
 
             frameArr = [frame]
 
-            pred = self.getpredict(sess, frameArr)
+            pred, frame = self.getpredict(sess, frameArr)
 
-            if self.evalType == 'real' and cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            if self.evalType == 'real':
+                cv2.imshow('Video', frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            elif self.evalType == 'test':
+                plt.imshow(frame)
+                plt.show()
 
         if self.evalType == 'real':
             video_capture.release()
