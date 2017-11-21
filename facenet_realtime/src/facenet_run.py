@@ -23,7 +23,7 @@ class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
         # self.realtime_run(self.model_name_detect, 'detect', 'eval')
-        self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
+        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
 
         # self.realtime_run(self.model_name_detect, 'detect', 'test')
         self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
@@ -171,7 +171,7 @@ class DataNodeImage():
                     imageFA = Image.fromarray(np.uint8(imageFA))
                     draw = ImageDraw.Draw(imageFA)
                     font = ImageFont.truetype(self.font_location, 16)
-                    draw.text((best_class_box[i][0], best_class_box[i][1]), result_names, self.text_color, font=font)
+                    draw.text((best_class_boxR[i][0], best_class_boxR[i][1]), result_names, self.text_color, font=font)
                     imageFA = np.array(imageFA)
 
                 frame = imageFA
