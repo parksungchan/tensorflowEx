@@ -217,11 +217,14 @@ class DataNodeImage():
                 self.evalfile_path = evalfile_path
                 self.evalfile = evalfile
                 frameArr = [misc.imread(evalfile_path + '/' + evalfile)]
-                pred = self.getpredict(sess, frameArr)
+                pred, _ = self.getpredict(sess, frameArr)
                 # print(evalfile)
                 # print(pred)
 
                 for predcnt in pred:
+                    print(evaldir)
+                    print(self.HumanNamesSort)
+                    print(predcnt)
                     if predcnt == -1 or predcnt == -2 or predcnt == -3:
                         none_cnt += 1
                         total_none += 1
