@@ -44,7 +44,6 @@ class AlignDatasetRotation():
         best_class_boxR = []
         for rect in face_boundaries:
             (x, y, w, h) = rect_to_bb(rect)
-            faceAligned.append(fa.align(image, gray, rect))
 
             for (enum, face) in enumerate(face_boundaries):
                 x = face.left()
@@ -52,7 +51,9 @@ class AlignDatasetRotation():
                 w = face.right() - x
                 h = face.bottom() - y
                 cv2.rectangle(image, (x, y), (x + w, y + h), self.box_color, 1)
-                best_class_boxR.append([x, y, x + w, y + h])
+
+            faceAligned.append(fa.align(image, gray, rect))
+            best_class_boxR.append([x, y, x + w, y + h])
 
         return faceAligned, image, best_class_boxR
 

@@ -20,11 +20,11 @@ from facenet_realtime.src.align.align_dataset_rotation import AlignDatasetRotati
 class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
-        self.realtime_run(self.model_name_detect, 'detect', 'eval')
+        # self.realtime_run(self.model_name_detect, 'detect', 'eval')
         self.realtime_run(self.model_name_rotdet,  'rotdet', 'eval')
-
-        self.realtime_run(self.model_name_detect, 'detect', 'test')
-        self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
+        #
+        # self.realtime_run(self.model_name_detect, 'detect', 'test')
+        # self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
 
         # self.realtime_run(self.model_name_detect, 'detect', 'real')
         # self.realtime_run(self.model_name_rotdet, 'rotdet', 'real')
@@ -86,19 +86,14 @@ class DataNodeImage():
         best_class_box = []
         best_class_boxR = []
         if self.detectType == 'rotdet':
-            try:
-                frameArr, imageFA, best_class_boxR = AlignDatasetRotation.face_rotation(self, frameArr[0], self.predictor, self.detector)
-            except:
-                None
+            frameArr, imageFA, best_class_boxR = AlignDatasetRotation.face_rotation(self, frameArr[0], self.predictor, self.detector)
 
             if len(frameArr) == 0:
                 best_class.append(-3)
-                best_class_box.append([])
+                best_class_box.append([0, 0, 0, 0])
+                best_class_boxR.append([0, 0, 0, 0])
 
         for frame in frameArr:
-            if frame is None:
-                continue
-
             frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # resize frame (optional)
 
             if frame.ndim == 2:
@@ -129,7 +124,7 @@ class DataNodeImage():
                     # inner exception
                     if bb[i][0] <= 0 or bb[i][1] <= 0 or bb[i][2] >= len(frame[0]) or bb[i][3] >= len(frame):
                         best_class.append(-1)
-                        best_class_box.append([])
+                        best_class_box.append([0,0,0,0])
                         continue
 
                     cropped.append(frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :])
@@ -152,14 +147,15 @@ class DataNodeImage():
                 best_class.append(-2)
 
         i = 0
-        for bc in best_class:
-            result_names = self.HumanNames[bc]
-
-            if self.detectType == 'detect':
+        if self.detectType == 'detect':
+            for bc in best_class:
+                result_names = self.HumanNames[bc]
                 cv2.rectangle(frame, (best_class_box[i][0], best_class_box[i][1]), (best_class_box[i][2], best_class_box[i][3]), self.box_color, 1)
                 cv2.putText(frame, result_names, (best_class_box[i][0], best_class_box[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                         1, self.text_color, thickness=1, lineType=1)
-            else:
+        elif self.detectType == 'rotdet' and len(best_class) == len(best_class_boxR):
+            for bc in best_class:
+                result_names = self.HumanNames[bc]
                 cv2.putText(imageFA, result_names, (best_class_boxR[i][0], best_class_boxR[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                             1, self.text_color, thickness=1, lineType=1)
                 frame = imageFA
@@ -171,7 +167,9 @@ class DataNodeImage():
         elif self.evalType == 'test':
             plt.imshow(frame)
             plt.show()
-
+        # print(best_class)
+        # plt.imshow(imageFA)
+        # plt.show()
         return best_class
 
     def facenet_capture(self, sess):
@@ -217,12 +215,12 @@ class DataNodeImage():
             false_cnt = 0
             none_cnt = 0
             for evalfile in evalfile_list:
+                self.evalfile_path = evalfile_path
+                self.evalfile = evalfile
                 frameArr = [misc.imread(evalfile_path + '/' + evalfile)]
                 pred = self.getpredict(sess, frameArr)
                 # print(evalfile)
                 # print(pred)
-                if len(pred) > 1:
-                    print('Multy:('+str(len(pred))+')'+evalfile_path + '/' + evalfile)
 
                 for predcnt in pred:
                     if predcnt == -1 or predcnt == -2 or predcnt == -3:
@@ -235,7 +233,11 @@ class DataNodeImage():
                     else :
                         if self.debug == True:
                             lable = self.HumanNamesSort[predcnt]
-                            print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+lable+' ]')
+                            if len(pred) > 1:
+                                print('FalseMulty :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+lable+' ]')
+                            else:
+                                print('False :'+evalfile_path+'/'+evalfile+' [ True='+evaldir+', Predict='+lable+' ]')
+
                         false_cnt += 1
                         total_false += 1
 
@@ -275,7 +277,7 @@ class DataNodeImage():
         elif predcnt == -3:
             lable = 'Lotation Run Error'
 
-        if self.debug == True:
+        if self.recogmsg == True:
             print('[ ' + lable + ' ]' + evalfile_path + '/' + evalfile)
 
 if __name__ == '__main__':

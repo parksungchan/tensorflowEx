@@ -2,7 +2,10 @@ import os
 
 class init_value():
     def init(self):
-        self.debug = False
+        # 틀린 이미지를 찾을때 사용한다.
+        self.debug = True
+        # 인식X or Multy 이미지를 찾을때 사용한다.
+        self.recogmsg = False
 
         self.image_size = 160
         self.batch_size = 1000
@@ -54,7 +57,7 @@ class init_value():
 
             for evalfile in evalfile_list:
                 self.test_data_files.append(evalfile_path + '/' + evalfile)
-                break
+                # break
 
         # self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
 
@@ -66,6 +69,8 @@ class init_value():
         self.embeddings = None
         self.embedding_size = None
         self.phase_train_placeholder = None
+        self.evalfile_path = None
+        self.evalfile = None
 
 
 
