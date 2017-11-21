@@ -34,7 +34,7 @@ class AlignDatasetRotation():
                 except:
                     print('Lotation Error:'+input_path+'/'+dirList+'/'+img)
 
-    def face_rotation(self, image, predictor, detector):
+    def face_rotation(self, image, predictor, detector, rectype = None):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         face_boundaries = detector(gray, 2)
 
@@ -50,6 +50,8 @@ class AlignDatasetRotation():
                 y = face.top()
                 w = face.right() - x
                 h = face.bottom() - y
+                if rectype == 'Y':
+                    cv2.rectangle(image, (x, y), (x + w, y + h), self.box_color, 1)
 
             faceAligned.append(fa.align(image, gray, rect))
             best_class_boxR.append([x, y, x + w, y + h])

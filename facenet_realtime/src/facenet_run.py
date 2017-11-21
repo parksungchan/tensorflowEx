@@ -86,7 +86,7 @@ class DataNodeImage():
         best_class_box = []
         best_class_boxR = []
         if self.detectType == 'rotdet':
-            frameArr, imageFA, best_class_boxR = AlignDatasetRotation.face_rotation(self, frameArr[0], self.predictor, self.detector)
+            frameArr, imageFA, best_class_boxR = AlignDatasetRotation.face_rotation(self, frameArr[0], self.predictor, self.detector, 'Y')
 
             if len(frameArr) == 0:
                 best_class.append(-3)
