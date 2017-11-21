@@ -57,7 +57,7 @@ class init_value():
 
             for evalfile in evalfile_list:
                 self.test_data_files.append(evalfile_path + '/' + evalfile)
-                # break
+                break
 
         # self.font_location = self.project_path+'font/ttf/NanumBarunGothic.ttf'
 
