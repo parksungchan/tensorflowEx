@@ -21,8 +21,8 @@ class DataNodeImage():
     def realtime(self):
         init_value.init_value.init(self)
         self.realtime_run(self.model_name_detect, 'detect', 'eval')
-        self.realtime_run(self.model_name_rotdet,  'rotdet', 'eval')
-        #
+        self.realtime_run(self.model_name_rotdet, 'rotdet', 'eval')
+
         self.realtime_run(self.model_name_detect, 'detect', 'test')
         self.realtime_run(self.model_name_rotdet, 'rotdet', 'test')
 
@@ -147,18 +147,17 @@ class DataNodeImage():
                 best_class.append(-2)
 
         i = 0
-        result_names = ''
         if self.detectType == 'detect':
             for bc in best_class:
                 result_names = self.HumanNames[bc]
                 cv2.rectangle(frame, (best_class_box[i][0], best_class_box[i][1]), (best_class_box[i][2], best_class_box[i][3]), self.box_color, 1)
-                if bc > 0:
+                if bc >= 0:
                     cv2.putText(frame, result_names, (best_class_box[i][0], best_class_box[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                             1, self.text_color, thickness=1, lineType=1)
         elif self.detectType == 'rotdet' and len(best_class) == len(best_class_boxR):
             for bc in best_class:
                 result_names = self.HumanNames[bc]
-                if bc > 0:
+                if bc >= 0:
                     cv2.putText(imageFA, result_names, (best_class_boxR[i][0], best_class_boxR[i][1]), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, self.text_color, thickness=1, lineType=1)
                 frame = imageFA
