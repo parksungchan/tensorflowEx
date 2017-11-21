@@ -257,8 +257,8 @@ class DataNodeImage():
                   )
 
         if true_cnt + false_cnt > 0:
-            acc = round((true_cnt / (true_cnt + false_cnt)) * 100, 2)
             for i in result:
+                acc = round((i[2] / (i[2] + i[3])) * 100, 2)
                 print('------------------------------------------------------------------')
                 print(i[0]+ ' [ Total Cnt:'+str(i[1])
                           + ', True Cnt:'+str(i[2])
