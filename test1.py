@@ -1,234 +1,357 @@
-import os
-import zipfile
-import numpy as np
-from PIL import Image, ImageFilter
-from cluster.data.data_node import DataNode
-from master.workflow.data.workflow_data_image import WorkFlowDataImage
-from time import gmtime, strftime
-from common import utils
-from common.utils import *
-import shutil
+import logging
+
+import keras
+import sys,resource
+from keras import optimizers
+from cluster.neuralnet.neuralnet_node import NeuralNetNode
+from cluster.neuralnet_model import resnet
+from cluster.neuralnet_model.nasnet import NASNetLarge
+from cluster.neuralnet_model.inception_v4 import inception_v4_model
+from master.workflow.netconf.workflow_netconf import WorkFlowNetConf
+from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import ReduceLROnPlateau, CSVLogger, EarlyStopping
+from common.graph.nn_graph_manager import NeuralNetModel
 import tensorflow as tf
-from third_party.yolo.yolo.net.yolo_tiny_net import YoloTinyNet
-import cv2
+import numpy as np
+from cluster.common.train_summary_info import TrainSummaryInfo
+from keras.utils import multi_gpu_model
 
+# from third_party.slim.train_image_classifier import TrainImageClassifier
 
-class DataNodeImage(DataNode):
-    """
-    """
+class NeuralNetNodeImage(NeuralNetNode):
+    def keras_get_model(self):
+        keras.backend.tensorflow_backend.clear_session()
 
-    def _set_dataconf_parm(self, dataconf):
-        self.x_size = dataconf["preprocess"]["x_size"]
-        self.y_size = dataconf["preprocess"]["y_size"]
-        self.channel = dataconf["preprocess"]["channel"]
-        self.directory = dataconf["source_path"]
-        self.output_directory = dataconf["store_path"]
-        self.output_yolo = dataconf["source_path"]+"_yolo"
-        self.model_yolo = "/home/dev/hoyai/third_party/yolo/models/pretrain"
-
-    def process_predicts(self, predicts):
-        p_classes = predicts[0, :, :, 0:20]
-        C = predicts[0, :, :, 20:22]
-        coordinate = predicts[0, :, :, 22:]
-
-        p_classes = np.reshape(p_classes, (7, 7, 1, 20))
-        C = np.reshape(C, (7, 7, 2, 1))
-
-        P = C * p_classes
-
-        index = np.argmax(P)
-
-        index = np.unravel_index(index, P.shape)
-
-        class_num = index[3]
-
-        coordinate = np.reshape(coordinate, (7, 7, 2, 4))
-
-        max_coordinate = coordinate[index[0], index[1], index[2], :]
-
-        xcenter = max_coordinate[0]
-        ycenter = max_coordinate[1]
-        w = max_coordinate[2]
-        h = max_coordinate[3]
-
-        xcenter = (index[1] + xcenter) * (self.x_size / 7.0)
-        ycenter = (index[0] + ycenter) * (self.y_size / 7.0)
-
-        w = w * self.x_size
-        h = h * self.y_size
-
-        xmin = xcenter - w / 2.0
-        ymin = ycenter - h / 2.0
-
-        xmax = xmin + w
-        ymax = ymin + h
-
-        return xmin, ymin, xmax, ymax, class_num
-
-    def yolo_detection(self):
-        println("run yolo")
-        set_filepaths(self.output_yolo)
-        common_params = {'image_size': self.x_size, 'num_classes': 20, 'batch_size': 1}
-        net_params = {'cell_size': 7, 'boxes_per_cell': 2, 'weight_decay': 0.0005}
-
-        net = YoloTinyNet(common_params, net_params, test=True)
-
-        img = tf.placeholder(tf.float32, (1, self.x_size, self.y_size, self.channel))
-        predicts = net.inference(img)
-        saver = tf.train.Saver(net.trainable_collection)
-        return saver, predicts, img
-
-    def run(self, conf_data):
         try:
-            println("run DataNodeImage")
-            nnid = conf_data['nn_id']
-            node_id = conf_data['node_id']
-            wf_ver = conf_data['wf_ver']
-            net_conf_id = self._find_netconf_node_id(nnid, wf_ver = wf_ver)
-            netconf = WorkFlowDataImage().get_step_source(net_conf_id)
-            dataconf = WorkFlowDataImage().get_step_source(node_id)
-            if dataconf == {}:
-                println("/cluster/data/data_node_image DataNodeImage run dataconf("+node_id+") is not Exist")
-                return
-            else:
-                println(node_id)
-            self._set_dataconf_parm(dataconf)
+            self.model = keras.models.load_model(self.last_chk_path)
+            logging.info("Train Restored checkpoint from:" + self.last_chk_path)
+        except Exception as e:
+            logging.info("None to restore checkpoint. Initializing variables instead." + self.last_chk_path)
+            logging.info(e)
+            if self.net_type == 'inceptionv4':
+                self.model = inception_v4_model(self.labels_cnt, 0.2, self.pretrain_model_path)
+                self.optimizer = optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+                self.optimizer = optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=1e-6)
+            elif self.net_type == 'nasnet':
+                self.model = NASNetLarge(input_shape=(331, 331, 3))
 
-            output_filename = strftime("%Y-%m-%d-%H:%M:%S", gmtime())
-            output_path = os.path.join(self.output_directory, output_filename)
+            elif self.net_type == 'resnet':
+                numoutputs = self.netconf["config"]["layeroutputs"]
 
-            labels = netconf['labels']
-            try:
-                filesize = dataconf["preprocess"]["filesize"]
-            except:
-                filesize = 1000000
+                if numoutputs == 18:
+                    self.model = resnet.ResnetBuilder.build_resnet_18((self.channel, self.x_size, self.y_size), self.labels_cnt)
+                elif numoutputs == 34:
+                    self.model = resnet.ResnetBuilder.build_resnet_34((self.channel, self.x_size, self.y_size), self.labels_cnt)
+                elif numoutputs == 50:
+                    self.model = resnet.ResnetBuilder.build_resnet_50((self.channel, self.x_size, self.y_size), self.labels_cnt)
+                elif numoutputs == 101:
+                    self.model = resnet.ResnetBuilder.build_resnet_101((self.channel, self.x_size, self.y_size), self.labels_cnt)
+                elif numoutputs == 152:
+                    self.model = resnet.ResnetBuilder.build_resnet_152((self.channel, self.x_size, self.y_size), self.labels_cnt)
+                elif numoutputs == 200:
+                    self.model = resnet.ResnetBuilder.build_resnet_200((self.channel, self.x_size, self.y_size), self.labels_cnt)
 
-            # unzip & remove zip
-            ziplist = os.listdir(self.directory)
-            for zipname in ziplist:
-                if zipname.find(".zip") > -1:
-                    print("Zip=" + zipname)
-                    fantasy_zip = zipfile.ZipFile(self.directory + '/' + zipname)
-                    fantasy_zip.extractall(self.directory)
-                    fantasy_zip.close()
-                    os.remove(self.directory + "/" + zipname)
+        # # self.model = multi_gpu_model(self.model, gpus=4)
+        # if self.optimizer == 'sgd':
+        #     self.optimizer = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+        #     # optimizers.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
+        # elif self.optimizer == 'rmsprop':
+        #     self.optimizer = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+        # elif self.optimizer == 'adagrad':
+        #     self.optimizer = optimizers.Adagrad(lr=0.01, epsilon=1e-08, decay=0.0)
+        # elif self.optimizer == 'adadelta':
+        #     self.optimizer = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=1e-08, decay=0.0)
+        # elif self.optimizer == 'adam':
+        #     self.optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+        # elif self.optimizer == 'adamax':
+        #     self.optimizer = optimizers.Adamax(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+        # elif self.optimizer == 'nadam':
+        #     self.optimizer = optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
+        #
+        # self.optimizer = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+        #
+        # self.model.compile(loss='categorical_crossentropy', optimizer=self.optimizer, metrics=['accuracy'])
 
-            forderlist = os.listdir(self.directory)
 
-            filecnt = 0
-            image_arr = []
-            lable_arr = []
-            shape_arr = []
-            name_arr = []
-            processcnt = 1
-            createcnt = 1
-            tf.reset_default_graph()
-            with tf.Session() as sess:
-                try:
-                    yolo = dataconf["preprocess"]["yolo"]
-                    if yolo == "Y" or yolo == "y":
-                        yolo_model = self.model_yolo+'/yolo_tiny.ckpt'
-                        saver, predicts, img_ph = self.yolo_detection()
-                        saver.restore(sess, yolo_model)
-                except:
-                    yolo = "N"
+        self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
-                for forder in forderlist:
-                    try:
-                        filelist = os.listdir(self.directory + '/' + forder)
-                    except Exception as e:
-                        println(e)
-                        continue
+    def train_run_image(self, input_data, test_data):
+        '''
+        Train Run
+        :param input_data:
+        :param test_data:
+        :return:
+        '''
+        self.epoch = self.netconf["param"]["epoch"]
+        self.data_augmentation = self.netconf["param"]["augmentation"]
+        try:
+            self.fit_size = self.netconf["param"]["fit_size"]
+        except:
+            self.fit_size = 9999999999
 
-                    for filename in filelist:
-                        try:
-                            #PNG -> JPEG
-                            img = Image.open(self.directory + '/' + forder + '/' + filename)
-                            pngidx = str(type(img)).find("PngImageFile")
-                            if pngidx > -1:
-                                img = img.convert("RGBA")
-                                bg = Image.new("RGBA", img.size, (255, 255, 255))
-                                bg.paste(img, (0, 0), img)
-                                filename = "Conv_" + str(filename)
-                                bg.save(self.directory + '/' + forder + '/' + filename)
+        self.lr_reducer = ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-6)
+        self.early_stopper = EarlyStopping(monitor='val_acc', min_delta=0.001, patience=10)
 
-                            if self.channel == 1:
-                                img = img.convert('L')
+        try:
+            while_cnt = 0
+            self.loss = 0
+            self.acc = 0
+            self.val_loss = 0
+            self.val_acc = 0
 
-                            img = img.resize((self.x_size, self.y_size), Image.ANTIALIAS)
-                            img = np.array(img)
-                            try:
-                                if yolo == "Y" or yolo == "y":
-                                    resized_img = cv2.resize(img, (self.x_size, self.y_size))
+            input_data.reset_pointer()
+            test_data.reset_pointer()
 
-                                    y_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
-                                    y_img = y_img.astype(np.float32)
-                                    y_img = y_img / 255.0 * 2 - 1
-                                    y_img = np.reshape(y_img, (1, self.x_size, self.y_size, self.channel))
-                                    np_predict = sess.run(predicts, feed_dict={img_ph: y_img})
-                                    xmin, ymin, xmax, ymax, class_num = self.process_predicts(np_predict)
-                                    resized_img = resized_img[int(ymin):int(ymax), int(xmin):int(xmax)]
+            test_set = test_data[0:test_data.data_size()]
+            x_tbatch = self.get_convert_img_x(test_set[0], self.x_size, self.y_size, self.channel) # img_data_batch
+            y_tbatch = self.get_convert_img_y(test_set[1], self.labels, self.labels_cnt) # label_data_batch
 
-                                    if yolo == "y":
-                                        set_filepaths(self.output_yolo+ '/' + forder)
-                                        np_img = Image.fromarray(resized_img)
-                                        np_img.save(self.output_yolo + '/' + forder + '/' + filename)
-                                        img = cv2.resize(resized_img, (self.x_size, self.y_size))
-                            except Exception as e:
-                                print("yolo file save error......................................." + str(filename))
-                                print(e)
+            while (input_data.has_next()):
+                run_size = 0
+                while( run_size < input_data.data_size()):
+                    if run_size + self.fit_size > input_data.data_size():
+                        input_set = input_data[run_size:input_data.data_size()]
+                    else:
+                        input_set = input_data[run_size:run_size + self.fit_size]
+                    run_size += self.fit_size + 1
+                    x_batch = self.get_convert_img_x(input_set[0], self.x_size, self.y_size, self.channel)  # img_data_batch
+                    y_batch = self.get_convert_img_y(input_set[1], self.labels, self.labels_cnt)  # label_data_batch
 
-                            img = img.reshape([-1, self.x_size, self.y_size, self.channel])
-                            img = img.flatten()
-                            image_arr.append(img)
-                            shape_arr.append(img.shape)
-                            lable_arr.append(forder.encode('utf8'))
-                            name_arr.append(filename.encode('utf8'))
-                            filecnt += 1
+                    if self.data_augmentation == "N" or self.data_augmentation == "n":
+                        history = self.model.fit(x_batch, y_batch,
+                                                 batch_size=self.batch_size,
+                                                 epochs=self.epoch,
+                                                 validation_data=(x_tbatch, y_tbatch),
+                                                 shuffle=True,
+                                                 callbacks=[self.lr_reducer, self.early_stopper])
+                    else:
+                        # This will do preprocessing and realtime data augmentation:
+                        datagen = ImageDataGenerator(
+                            featurewise_center=False,  # set input mean to 0 over the dataset
+                            samplewise_center=False,  # set each sample mean to 0
+                            featurewise_std_normalization=False,  # divide inputs by std of the dataset
+                            samplewise_std_normalization=False,  # divide each input by its std
+                            zca_whitening=False,  # apply ZCA whitening
+                            rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+                            width_shift_range=0.1, # randomly shift images horizontally (fraction of total width)
+                            height_shift_range=0.1, # randomly shift images vertically (fraction of total height)
+                            horizontal_flip=True,  # randomly flip images
+                            vertical_flip=False)  # randomly flip images
 
-                            if filecnt >= filesize :
-                                output_path_sub = output_path+"_"+str(createcnt)
-                                hdf_create(self, output_path_sub, filecnt, self.channel, image_arr, shape_arr, lable_arr, name_arr)
+                        # Compute quantities required for featurewise normalization
+                        # (std, mean, and principal components if ZCA whitening is applied).
+                        datagen.fit(x_batch)
 
-                                filecnt = 0
-                                image_arr = []
-                                lable_arr = []
-                                shape_arr = []
-                                name_arr = []
-                                createcnt += 1
+                        # Fit the model on the batches generated by datagen.flow().
+                        history = self.model.fit_generator(
+                            datagen.flow(x_batch, y_batch, batch_size=self.batch_size),
+                            steps_per_epoch=x_batch.shape[0] // self.batch_size,
+                            validation_data=(x_tbatch, y_tbatch),
+                            epochs=self.epoch, verbose=1, max_q_size=100,
+                            callbacks=[self.lr_reducer, self.early_stopper, self.csv_logger])
 
-                            print("Processcnt="+ str(processcnt) + " File=" + self.directory + " forder=" + forder + "  name=" + filename)
-                        except:
-                            print("Processcnt="+ str(processcnt) + " ErrorFile=" + self.directory + " forder=" + forder + "  name=" + filename)
-                        processcnt += 1
-                    shutil.rmtree(self.directory + "/" + forder)
-                    try:
-                        idx = labels.index(forder)
-                    except:
-                        labels.append(forder)
+                    self.loss += history.history["loss"][len(history.history["loss"])-1]
+                    self.acc += history.history["acc"][len(history.history["acc"])-1]
+                    self.val_loss += history.history["val_loss"][len(history.history["val_loss"])-1]
+                    self.val_acc += history.history["val_acc"][len(history.history["val_acc"])-1]
 
-            if filecnt > 0:
-                output_path_sub = output_path + "_" + str(createcnt)
-                hdf_create(self, output_path_sub, filecnt, self.channel, image_arr, shape_arr, lable_arr, name_arr)
+                    while_cnt += 1
+                input_data.next()
 
-            netconf["labels"] = labels
-            WorkFlowDataImage().put_step_source_ori(net_conf_id, netconf)
-
-            return None
+            if while_cnt > 0:
+                self.loss =self.loss/while_cnt
+                self.acc = self.acc / while_cnt
+                self.val_loss = self.val_loss / while_cnt
+                self.val_acc = self.val_acc / while_cnt
 
         except Exception as e:
-            println(e)
-            raise Exception(e)
+            logging.info("Error[400] ..............................................")
+            logging.info(e)
 
+    def run(self, conf_data):
+        '''
+        Train run init
+        :param conf_data: 
+        :return: 
+        '''
+        try :
+            logging.info("run NeuralNetNodeImage Train")
+            # Common Start #############################################################################################
+            # init value
+            self = NeuralNetNode()._init_node_parm(self, conf_data)
 
+            # netconf
+            self.netconf = WorkFlowNetConf().get_view_obj(self.node_id)
 
-    def _init_node_parm(self, node_id):
-        return None
+            # dataconf & get data
+            input_data, self.dataconf = self.get_input_data(self.feed_node, self.cls_pool, self.train_feed_name)
+            test_data, self.dataconf_eval = self.get_input_data(self.feed_node, self.cls_pool, self.eval_feed_name)
+            # Common End ###############################################################################################
 
-    def _set_progress_state(self):
-        return None
+            # Label Setup (1: HDF label row)
+            self.labels, self.labels_cnt = self._get_netconf_labels(self.netconf, input_data, 1)
 
-    def load_data(self, node_id="", parm = 'all'):
-        dataconf = WorkFlowDataImage().get_step_source(node_id)
-        output_directory = dataconf["store_path"]
-        return  utils.get_filepaths(output_directory)
+            self.channel = self.dataconf["preprocess"]["channel"]
+            self.x_size = self.dataconf["preprocess"]["x_size"]
+            self.y_size = self.dataconf["preprocess"]["y_size"]
+            self.train_cnt = self.netconf["param"]["traincnt"]
+            self.batch_size = self.netconf["param"]["batch_size"]
+            self.predlog = self.netconf["param"]["predictlog"]
+            self.optimizer = self.netconf["config"]["optimizer"]
+
+            # get model
+            self.keras_get_model()
+
+            for i in range(self.train_cnt):
+                # Train
+                self.train_run_image(input_data, test_data)
+
+                # Model Save :  _init_node_parm : self.save_path
+                keras.models.save_model(self.model, self.save_path)
+
+                # Acc Loss Save : _init_node_parm : self.acc_loss_result
+                self.set_acc_loss_result(self.acc_loss_result, self.loss, self.acc, self.val_loss, self.val_acc)
+
+                # Eval & Result Save
+                self.eval(self.node_id, self.conf_data, test_data, None)
+
+                # Eval Result Print
+                self.eval_result_print(self.eval_data, self.predlog)
+
+            if self.train_cnt == 0:
+                # Eval & Result Save
+                self.eval(self.node_id, self.conf_data, test_data, None)
+
+                # Eval Result Print
+                self.eval_result_print(self.eval_data, self.predlog)
+
+            return None
+        except Exception as e :
+            logging.info("===Error on Train  : {0}".format(e))
+
+    ####################################################################################################################
+    def eval(self, node_id, conf_data, data=None, result=None):
+        '''
+        eval run init
+        :param node_id: 
+        :param conf_data: 
+        :param data: 
+        :param result: 
+        :return: 
+        '''
+        try :
+            logging.info("run NeuralNetNodeImage eval")
+
+            pred_cnt = self.netconf["param"]["predictcnt"]
+            eval_type = self.netconf["config"]["eval_type"]
+
+            # eval result
+            config = {"type": eval_type, "labels": self.labels,
+                      "nn_id": self.nn_id,
+                      "nn_wf_ver_id": self.nn_wf_ver_id, "nn_batch_ver_id": self.train_batch}
+            self.eval_data = TrainSummaryInfo(conf=config)
+
+            if data is None:
+                return self.eval_data
+
+            data.reset_pointer()
+
+            while (data.has_next()):
+                data_set = data[0:data.data_size()]
+                x_batch = self.get_convert_img_x(data_set[0], self.x_size, self.y_size, self.channel)  # img_data_batch
+                logits = self.model.predict(x_batch)
+
+                y_batch = self.get_convert_img_y_eval(data_set[1])
+                n_batch = self.get_convert_img_y_eval(data_set[2]) # File Name
+
+                for i in range(len(logits)):
+                    true_name = y_batch[i]
+
+                    logit = []
+                    logit.append(logits[i])
+                    retrun_data = self.set_predict_return_cnn_img(self.labels, logit, pred_cnt)
+                    pred_name = retrun_data["key"]
+                    pred_value = retrun_data["val"]
+                    #예측값이 배열로 넘어온다 한개라도 맞으면참
+                    t_pred_name = pred_name[0]
+                    for pred in pred_name:
+                        if pred == true_name:
+                            t_pred_name = pred
+
+                    # eval result
+                    self.eval_data.set_result_info(true_name, t_pred_name)
+
+                    # Row log를 찍기위해서 호출한다.
+                    file_name = n_batch[i]
+                    self.eval_data.set_tf_log(file_name, true_name, pred_name, pred_value)
+
+                data.next()
+
+            # eval result
+            if self.train_cnt != 0:
+                TrainSummaryInfo.save_result_info(self, self.eval_data)
+
+            return self.eval_data
+
+        except Exception as e :
+            logging.info("===Error on Eval  : {0}".format(e))
+
+    ####################################################################################################################
+    def predict(self, nn_id, ver, filelist):
+        '''
+        predict
+        :param node_id: 
+        :param filelist: 
+        :return: 
+        '''
+        logging.info("run NeuralNetNodeImage Predict")
+        self = NeuralNetNode()._init_pred_parm(self, nn_id, ver)
+        # net   config setup
+        self.netconf = WorkFlowNetConf().get_node_info(nn_id, ver, self.netconf_name)
+        self.dataconf = WorkFlowNetConf().get_node_info(nn_id, ver, self.dataconf_name)
+
+        # data shape change MultiValuDict -> nd array
+        filename_arr, filedata_arr = self.change_predict_fileList(filelist, self.dataconf)
+
+        # get unique key
+        unique_key = '_'.join([str(nn_id), str(ver), self.load_batch])
+
+        logging.info("getModelPath:"+self.model_path + "/" + self.load_batch+self.file_end)
+
+        ## create tensorflow graph
+        if (NeuralNetModel.dict.get(unique_key)):
+            self = NeuralNetModel.dict.get(unique_key)
+            graph = NeuralNetModel.graph.get(unique_key)
+        else:
+            self.keras_get_model()
+
+            NeuralNetModel.dict[unique_key] = self
+            NeuralNetModel.graph[unique_key] = tf.get_default_graph()
+            graph = tf.get_default_graph()
+
+        pred_return_data = {}
+        for i in range(len(filename_arr)):
+            file_name = filename_arr[i]
+            file_data = filedata_arr[i]
+
+            try:
+                logits = self.model.predict(file_data)
+            except Exception as e:
+                self.keras_get_model()
+
+                NeuralNetModel.dict[unique_key] = self
+                NeuralNetModel.graph[unique_key] = tf.get_default_graph()
+                graph = tf.get_default_graph()
+                logits = self.model.predict(file_data)
+
+            labels = self.netconf["labels"]
+            pred_cnt = self.netconf["param"]["predictcnt"]
+            retrun_data = self.set_predict_return_cnn_img(labels, logits, pred_cnt)
+            pred_return_data[file_name] = retrun_data
+            logging.info("Return Data.......................................")
+            logging.info(pred_return_data)
+
+        return pred_return_data
+
+    ####################################################################################################################
+
