@@ -1,4 +1,5 @@
 Installing OpenCV 3.2.0 with contrib modules in Ubuntu 16.04 LTS
+https://www.pyimagesearch.com/2015/07/20/install-opencv-3-0-and-python-3-4-on-ubuntu/
 ================================================================
 cd /home/dev
 
