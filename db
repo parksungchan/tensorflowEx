@@ -1,0 +1,17 @@
+1. cx_Oracle install    
+python -m pip install cx_Oracle --upgrade
+
+2. libaio install   
+yum install libaio   
+
+3. Python 에서 LD_LIBRARY_PATH 확인 (ex:/usr/local/cuda/lib64)   
+print(os.environ['LD_LIBRARY_PATH'])  
+
+4. 사이트 접속 oracle client download (instantclient-basic-linux.x64-12.2.0.1.0.zip)   
+https://oracle.github.io/odpi/doc/installation.html#linux
+
+5. file unzip   
+unzip instantclient-basic-linux.x64-12.2.0.1.0.zip
+
+6. LD_LIBRARY_PATH 로 압축해제한 파일들을 넣어 준다.   
+/usr/local/cuda/lib64/...
