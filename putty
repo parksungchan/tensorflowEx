@@ -74,3 +74,6 @@ docker cp hoyai_dev:/hoya_str_root/nn00004/6/datasrc /home/dev/hdf5
 
 
 ./manage.py runserver 2fb1ece74beb:8000 --nothreading --noreload
+
+kst date setup
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
