@@ -1,0 +1,47 @@
+import requests
+from bs4 import BeautifulSoup
+
+strArr = []
+# strArr.append('신혼여행커플룩')
+strArr.append('하이웨스트비키니')
+strArr.append('래쉬가드')
+strArr.append('레쉬가드')
+strArr.append('래시가드')
+strArr.append('레시가드')
+strArr.append('커플래쉬가드')
+strArr.append('커플레쉬가드')
+strArr.append('커플래시가드')
+strArr.append('커플레시가드')
+sIdx = 1
+eIdx = 50
+
+for strTxt in strArr:
+    print('Key:$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    print('Key:'+strTxt)
+    print('Key:$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    idx = 1
+    for pg in range(sIdx,eIdx):
+        url = 'https://search.shopping.naver.com/search/all.nhn?origQuery='+strTxt
+        url +='&pagingIndex='+str(pg)+'&pagingSize=40&viewType=list&sort=rel&frm=NVSHPAG&query='+strTxt
+
+        html = requests.get(url).text
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        for tag in soup.select('li'):
+            tagImg = tag.find(class_='img')
+            if tagImg:
+                # print(tagImg)
+                ct = tagImg.contents[1]
+                tagImgIdx = tag.text.find('FLYBEACH')
+                if tagImgIdx > -1:
+                    print('Page:'+str(pg) + '    (' + str(ct) + ')')
+
+                idx += 1
+
+
+
+
+
+
+
