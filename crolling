@@ -1,47 +1,72 @@
-import requests
+import requests, datetime
 from bs4 import BeautifulSoup
+now = datetime.datetime.now()
+nowStr = str(now).replace('-','').replace(' ','_').replace(':','').replace('.','_')
+print('File Name:'+nowStr)
 
 strArr = []
-# strArr.append('신혼여행커플룩')
-strArr.append('하이웨스트비키니')
-strArr.append('래쉬가드')
-strArr.append('레쉬가드')
-strArr.append('래시가드')
-strArr.append('레시가드')
-strArr.append('커플래쉬가드')
-strArr.append('커플레쉬가드')
-strArr.append('커플래시가드')
-strArr.append('커플레시가드')
+# strArr.append('비키니')
+# '신혼여행커플룩'
+strArr1 = ['해외여행여름옷', '커플비치웨어', '비치웨어', '로브가디건', '비치원피스', '여름원피스']
+for strStr in strArr1:
+    strArr.append(strStr)
+
+strArr1 = ['비키니', '하이웨스트비키니', '모노키니', '왕뽕비키니', '왕뽕수영복', '원피스수영복']
+for strStr in strArr1:
+    strArr.append(strStr)
+
+strArrRS = ['래쉬가드', '레쉬가드', '래시가드', '레시가드']
+strArrR = ['', '커플', '여성', '여자', '집업', '짚업']
+# strArrRS = ['래쉬가드']
+# strArrR = ['']
+for strR in strArrR:
+    for strRS in strArrRS:
+        strArr.append(strR + strRS)
+
 sIdx = 1
-eIdx = 50
+eIdx = 20
 
-for strTxt in strArr:
-    print('Key:$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    print('Key:'+strTxt)
-    print('Key:$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    idx = 1
-    for pg in range(sIdx,eIdx):
-        url = 'https://search.shopping.naver.com/search/all.nhn?origQuery='+strTxt
-        url +='&pagingIndex='+str(pg)+'&pagingSize=40&viewType=list&sort=rel&frm=NVSHPAG&query='+strTxt
-
-        html = requests.get(url).text
-
-        soup = BeautifulSoup(html, 'html.parser')
-
-        for tag in soup.select('li'):
-            tagImg = tag.find(class_='img')
-            if tagImg:
-                # print(tagImg)
-                ct = tagImg.contents[1]
-                tagImgIdx = tag.text.find('FLYBEACH')
-                if tagImgIdx > -1:
-                    print('Page:'+str(pg) + '    (' + str(ct) + ')')
-
-                idx += 1
-
-
-
-
-
+with open(nowStr+".txt", "a") as myfile:
+    for strTxt in strArr:
+        pStr1 = 'Key:$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+        pStr2 = 'Key:'+strTxt
+        print(pStr1)
+        print(pStr2)
+        print(pStr1)
+        myfile.write(pStr1+'\n')
+        myfile.write(pStr2+'\n')
+        myfile.write(pStr1+'\n')
+        idx = 1
+        for pg in range(sIdx, eIdx):
+            url = 'https://search.shopping.naver.com/search/all.nhn?origQuery='+strTxt
+            url +='&pagingIndex='+str(pg)+'&pagingSize=40&viewType=list&sort=rel&frm=NVSHPAG&query='+strTxt
+            html = requests.get(url).text
+            # print(html)
+            soup = BeautifulSoup(html, 'html.parser')
+            for tag in soup.select('li'):
+                tagImg = tag.find(class_='img')
+                if tagImg:
+                    # print(tagImg)
+                    ct = tagImg.contents[1]
+                    pageurl = tagImg.attrs['href']
+                    tagImgIdx = tag.text.find('FLYBEACH')
+                    tagImgIdxH = tag.text.find('플라이비치')
+                    if tagImgIdx > -1:
+                        adIdx = str(tag).find('ad _itemSection')
+                        if adIdx > 0:
+                            pStr = 'FLYBEACH   Page(광고):' + str(pg) + '    (' + str(ct) + ')' + pageurl
+                        else:
+                            pStr = 'FLYBEACH   Page:'+str(pg) + '    (' + str(ct) + ')'+pageurl
+                        print(pStr)
+                        myfile.write(pStr+'\n')
+                    elif tagImgIdxH > -1:
+                        adIdx = str(tag).find('ad _itemSection')
+                        if adIdx > 0:
+                            pStr = '플라이비치 Page(광고):' + str(pg) + '    (' + str(ct) + ')' + pageurl
+                        else:
+                            pStr = '플라이비치 Page:' + str(pg) + '    (' + str(ct) + ')'+pageurl
+                        print(pStr)
+                        myfile.write(pStr+'\n')
+                    idx += 1
 
 
