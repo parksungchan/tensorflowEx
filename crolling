@@ -5,23 +5,26 @@ nowStr = str(now).replace('-','').replace(' ','_').replace(':','').replace('.','
 print('File Name:'+nowStr)
 
 strArr = []
-# strArr.append('비키니')
+# strArr.append('여름로브가디건')
 # '신혼여행커플룩'
-strArr1 = ['해외여행여름옷', '커플비치웨어', '비치웨어', '로브가디건', '비치원피스', '여름원피스']
+# strArr1 = ['비치원피스', '비치웨어', '도트원피스', '바캉스원피스', '여름옷', '바캉스룩', '커플비치웨어', '로브가디건', '여름원피스', '해외여행여름옷']
+# for strStr in strArr1:
+#     strArr.append(strStr)
+
+strArr1 = ['비키니','수영복', '모노키니', '원피스수영복', '여자실내수영복', '여자수영복', '실내수영장수영복', '여성수영복', '하이웨스트비키니', '여름옷', '원피스비키니', '바캉스룩', '실내수영복', '커플수영복' ]
 for strStr in strArr1:
     strArr.append(strStr)
-
-strArr1 = ['비키니', '하이웨스트비키니', '모노키니', '왕뽕비키니', '왕뽕수영복', '원피스수영복']
-for strStr in strArr1:
+strArr2 = ['프릴비키니', '비키니쇼핑몰', '섹시비키니', '여성실내수영복', '수영복쇼핑몰', '비키니브랜드', '왕뽕비키니']
+for strStr in strArr2:
     strArr.append(strStr)
 
-strArrRS = ['래쉬가드', '레쉬가드', '래시가드', '레시가드']
-strArrR = ['', '커플', '여성', '여자', '집업', '짚업']
-# strArrRS = ['래쉬가드']
-# strArrR = ['']
-for strR in strArrR:
-    for strRS in strArrRS:
-        strArr.append(strR + strRS)
+# strArrR = ['', '커플', '여성', '여자', '집업', '짚업', '커플집업', '커플짚업', '남자','수영복','루즈핏','크롭']
+# strArrRS = ['래쉬가드', '레쉬가드', '래시가드', '레시가드']
+# for strR in strArrR:
+#     for strRS in strArrRS:
+#         strArr.append(strR + strRS)
+# strArr.append('래쉬가드추천')
+# strArr.append('여성래쉬가드세트')
 
 sIdx = 1
 eIdx = 20
