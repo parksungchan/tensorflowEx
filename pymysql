@@ -1,0 +1,37 @@
+"""
+https://gist.github.com/pjt3591oo/e484199db8aeff9f9ea7bff720e25e47
+pymysql은 python에서 mysql 연동을 위한 라이브러리 입니다.
+해당 코드는 pymysql을 이용하여 CRUD하는 간단한 예시입니다.
+"""
+import pymysql
+
+# MySQL Connection 연결
+conn = pymysql.connect(host='localhost', user='root', password='', db='test', charset='utf8', )
+
+curs = conn.cursor(pymysql.cursors.DictCursor)
+
+# ==== select example ====
+sql = "select * from webtoonCommends"
+curs.execute(sql)
+
+# 데이타 Fetch
+rows = curs.fetchall()
+print(rows)
+
+# ==== insert example ====
+sql = """insert into customer(name,category,region)
+         values (%s, %s, %s)"""
+curs.execute(sql, ('홍길동', 1, '서울'))
+curs.execute(sql, ('이연수', 2, '서울'))
+conn.commit()
+
+# ==== update OR delete example ====
+sql = """update customer
+         set region = '서울특별시'
+         where region = '서울'"""
+curs.execute(sql)
+
+sql = "delete from customer where id=%s"
+curs.execute(sql, 6)
+
+conn.commit()
