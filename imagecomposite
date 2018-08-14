@@ -1,0 +1,59 @@
+from PIL import Image
+import os, sys, cv2
+pjd_dir = os.path.dirname(os.path.dirname(os.getcwd()))
+sys.path.append(pjd_dir)
+sys.path.append(pjd_dir+'/src')
+import init_value
+import numpy as np
+
+wait_frame0 = Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_00.png').convert('RGBA')
+effect = []
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_01.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_02.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_03.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_04.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_05.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_06.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_07.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_08.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_09.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_10.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_11.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_12.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_13.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_14.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_15.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_16.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_17.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_18.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_19.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_20.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_21.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_22.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_23.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_24.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_25.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_26.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_27.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_28.png'))
+effect.append(Image.open(init_value.project_dir + '/gui/templates/css/images/screen_saver_29.png'))
+i = 0
+name = 0
+while True:
+    wait_frame = Image.alpha_composite(wait_frame0, effect[i])
+    wait_frame = wait_frame.convert('RGB')
+    wait_frame = np.asarray(wait_frame)
+    wait_frame = wait_frame[:, :, ::-1].copy()
+
+    if i < 10:
+        name = '0'+str(i)
+    else:
+        name = str(i)
+    file = '/home/dev/PosFace_Device/gui/templates/css/images/wait_frame/' + 'wait_frame_'+name +'.png'
+    cv2.imwrite(file, wait_frame)
+    
+    i = i + 1
+    if i == 29 : break
+    cv2.imshow('window', wait_frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
