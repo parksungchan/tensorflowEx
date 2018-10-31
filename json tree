@@ -1,0 +1,37 @@
+inputDic = {"a":
+                {"a":
+                     {"a":
+                          {'q':
+                               {'e':'e1'
+                                   ,'z':
+                                    {'z1':'z11'}
+                                   ,'s':'s1'}
+                           ,'r':'r1'}
+                         , "c":
+                                {"d":"ac1"}
+                      }
+                , "b":{"ab":1}
+                ,'aa':{'aa1':{'ae':'ae1'}}
+                 }
+
+            }
+
+check = []
+
+
+ # 함수를 호출합니다.
+def fnc(upKey,dic):
+    for key, value in dic.items():
+        inputKey = upKey+[key]
+        if inputKey in check:
+            break
+        else:
+            check.append(inputKey)
+        if isinstance(value, dict):
+            #print(key,value)
+            fnc(inputKey,value)
+        else:
+            print(inputKey,value)
+        # print(key)
+
+fnc(check,inputDic)
