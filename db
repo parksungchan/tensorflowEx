@@ -15,3 +15,18 @@ unzip instantclient-basic-linux.x64-12.2.0.1.0.zip
 
 6. LD_LIBRARY_PATH 로 압축해제한 파일들을 넣어 준다.   
 /usr/local/cuda/lib64/...
+
+######################################################################################
+dbeaver down
+https://dbeaver.io/download/
+
+linux
+down dbeaver-ce_5.2.5_amd64.deb
+sudo dpkg -i dbeaver-ce_5.2.5_amd64.deb
+
+
+
+
+
+
+
